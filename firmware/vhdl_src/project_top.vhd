@@ -1,0 +1,86 @@
+--------------------------------------------
+-- ECE-6276-Q : DSP HARDWARE SYSTEMS
+--------------------------------------------
+-- DISTANCE LEARNING STUDENTS
+--    GREGORY WALLS
+--    BRYCE WILLIAMS
+--    ZACHARY BOE
+--    BENJAMIN SULLINS - GTID: 903232988
+--------------------------------------------
+-- SCHOOL OF ELECTRICAL AND COMPUTER ENGINEERING 
+-- GEORGIA INSTIUTE OF TECHNOLOGY 
+--------------------------------------------
+-- FINAL PROJECT - VGA TRANSPOSE AND EDGE DETECTION
+--------------------------------------------
+-- REFERENCES
+-- ----
+--------------------------------------------
+
+LIBRARY IEEE;
+   USE IEEE.STD_LOGIC_1164.ALL;
+   USE IEEE.NUMERIC_STD.ALL;
+
+ENTITY PROJECT_TOP IS
+PORT(
+   CLK          : IN STD_LOGIC;
+   RST          : IN STD_LOGIC
+);
+END PROJECT_TOP;
+
+ARCHITECTURE PROJECT_TOP_ARCH OF PROJECT_TOP IS
+
+   CONSTANT VIDEO_VPIX : NATURAL := 640;
+   CONSTANT VIDEO_VLIN : NATURAL := 480;
+   CONSTANT VIDEO_IPIX : NATURAL := 16;
+
+BEGIN
+
+   --INSTANTIATION OF THE 
+   TP_GENERATOR: ENTITY WORK.VIDEO_TEST_PATTERN
+   GENERIC MAP(
+      VIDEO_VPIX  => VIDEO_VPIX,
+      VIDEO_VLIN  => VIDEO_VLIN,
+      VIDEO_IPIX  => VIDEO_IPIX
+   )
+   PORT MAP(
+      CLK         => CLK,
+      RST         => RST
+   );
+
+   --INSTANTIATION OF THE 
+   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
+   GENERIC MAP(
+      VIDEO_VPIX  => VIDEO_VPIX,
+      VIDEO_VLIN  => VIDEO_VLIN,
+      VIDEO_IPIX  => VIDEO_IPIX
+   )
+   PORT MAP(
+      CLK         => CLK,
+      RST         => RST
+   );
+
+   --INSTANTIATION OF THE 
+   EDGE_DETECTION: ENTITY WORK.VIDEO_EDGE_DETECTION
+   GENERIC MAP(
+      VIDEO_VPIX  => VIDEO_VPIX,
+      VIDEO_VLIN  => VIDEO_VLIN,
+      VIDEO_IPIX  => VIDEO_IPIX
+   )
+   PORT MAP(
+      CLK         => CLK,
+      RST         => RST
+   );
+
+   --INSTANTIATION OF THE 
+   VGA_OUTPUT: ENTITY WORK.VIDEO_VGA_CONVERTER
+   GENERIC MAP(
+      VIDEO_VPIX  => VIDEO_VPIX,
+      VIDEO_VLIN  => VIDEO_VLIN,
+      VIDEO_IPIX  => VIDEO_IPIX
+   )
+   PORT MAP(
+      CLK         => CLK,
+      RST         => RST
+   );
+
+END PROJECT_TOP_ARCH;
