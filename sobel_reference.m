@@ -1,4 +1,5 @@
 clear; clc;
+close all;
 
 %% Build a Test Image
 test_imag = uint8([128*ones(121, 148), 32*ones(121, 4),128*ones(121,148);
@@ -29,11 +30,17 @@ test_output_y = double(0*test_imag);             % Create output array for y-dir
 for c = 2:l-1
     % For each row, exclude border to avoid out-of-bounds indexing
     for r = 2:w-1
-        for m = c-1:c+1
-            for n = r-1:r+1
-                test_output_x(r,c) = test_output_x(r,c) + (gx(n-r+2, m-c+2) * test_imag(n,m));
-            end
-        end
+        
+        % In every clock cycle you will be grabbing all 3x3 elements that
+        % you've buffered up.
+        image_kernel = cast( test_imag(r-1:r+1, c-1:c+1), 'double');
+        
+        % You will then apply the sobel kernel element values to the
+        % image_kernel in order to generate the center kernel elements
+        % value. The double sum is just so matlab can reduce all of the
+        % multiplications into a single pixel element.
+        test_output_x(r,c) = sum(sum( image_kernel .* gx ));
+        
     end
 end
 
