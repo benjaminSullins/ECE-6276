@@ -48,17 +48,23 @@ ARCHITECTURE FAKE_CAMERA_ARCH OF FAKE_CAMERA IS
    -----------------------------------------------------------------
    -- STATE MACHINE
    -----------------------------------------------------------------
-   TYPE STATE_MACHINE IS (FRAME_INVALID, LINE_VALID, LINE_INVALID);
+   -- FRAME_INVALID - NO FRAME BEING SENT
+   -- FRONT_PORCH   - I LIKE TO ADD A FRONT PORCH TO ALLOW SETTLING
+   --                 TIME FOR DOWNSTREAM LOGIC
+   -- LINE_VALID    - VALID LINE DATA
+   -- LINE_INVALID  - INVALID LINE DATA
+   -----------------------------------------------------------------
+   TYPE STATE_MACHINE IS (FRAME_INVALID, FRONT_PORCH, LINE_VALID, LINE_INVALID);
    SIGNAL SM : STATE_MACHINE := FRAME_INVALID;
 
-   SIGNAL VLIN_CNTR     : STD_LOGIC_VECTOR(LOG2(VIDEO_VLIN) - 1 DOWNTO 0);
+   SIGNAL VLIN_CNTR     : STD_LOGIC_VECTOR(LOG2(VIDEO_VLIN) DOWNTO 0);
 
    -----------------------------------------------------------------
    -- COUNTER CONTROLLER
    -----------------------------------------------------------------
-   SIGNAL INT_TIME_CNTR : STD_LOGIC_VECTOR(LOG2(VIDEO_INT_TIME) - 1 DOWNTO 0);
-   SIGNAL VPIX_CNTR     : STD_LOGIC_VECTOR(LOG2(VIDEO_VPIX)     - 1 DOWNTO 0);
-   SIGNAL IPIX_CNTR     : STD_LOGIC_VECTOR(LOG2(VIDEO_IPIX)     - 1 DOWNTO 0);
+   SIGNAL INT_TIME_CNTR : STD_LOGIC_VECTOR(LOG2(VIDEO_INT_TIME) DOWNTO 0);
+   SIGNAL VPIX_CNTR     : STD_LOGIC_VECTOR(LOG2(VIDEO_VPIX)     DOWNTO 0);
+   SIGNAL IPIX_CNTR     : STD_LOGIC_VECTOR(LOG2(VIDEO_IPIX)     DOWNTO 0);
 
    -----------------------------------------------------------------
    -- OUTPUT REGISTERS
@@ -85,31 +91,38 @@ BEGIN
          CASE( SM ) IS
 
             WHEN FRAME_INVALID =>                              -- FRAME INVALID STATE
-               IF( INT_TIME_CNTR > VIDEO_INT_TIME - 1 ) THEN   -- IF WE HAVE REACHED THE INTEGRATION TIME
-                  SM <= LINE_VALID;                            -- MOVE TO LINE_VALID
+               IF( INT_TIME_CNTR >= VIDEO_INT_TIME - 1 ) THEN  -- IF WE HAVE REACHED THE INTEGRATION TIME
+                  SM <= FRONT_PORCH;                           -- MOVE TO FRONT_PORCH
                ELSE                                            -- OTHERWISE
                   SM <= FRAME_INVALID;                         -- STAY IN FRAME_INVALID STATE
                END IF;
 
+            WHEN FRONT_PORCH =>                                -- FRONT_PORCH STATE
+               IF( IPIX_CNTR >= VIDEO_IPIX - 1 ) THEN          -- IF WE HAVE REACHED IPIX COUNT
+                  SM        <= LINE_VALID;                     -- MOVE TO LINE_VALID
+               ELSE                                            -- OTHERWISE
+                  SM        <= FRONT_PORCH;                    -- STAY IN FRONT_PORCH STATE
+               END IF;
+
             WHEN LINE_VALID =>                                 -- LINE_VALID STATE
-               IF( VLIN_CNTR > VIDEO_VLIN - 1 ) THEN           -- CHECK FOR END OF FRAME
-                  IF( VPIX_CNTR > VIDEO_VPIX - 1 ) THEN        -- IF WE HAVE REACHED VPIX COUNT
-                     SM        <= LINE_INVALID;                -- MOVE TO LINE_INVALID
-                     VLIN_CNTR <= VLIN_CNTR + 1;               -- AND INCREMENT LINE COUNTER
-                  ELSE                                         -- OTHERWISE
-                     SM        <= LINE_VALID;                  -- STAY IN LINE_VALID STATE
-                     VLIN_CNTR <= VLIN_CNTR;                   -- AND DONT INCREMENT LINE COUNTER
-                  END IF;
-               ELSE                                            -- IF THE FRAME HAS ENDED
-                  SM        <= FRAME_INVALID;                  -- MODE TO FRAME_INVALID
-                  VLIN_CNTR <= (OTHERS => '0');                -- AND CLEAR LINE COUNTER
+               IF( VPIX_CNTR >= VIDEO_VPIX - 1 ) THEN          -- IF WE HAVE REACHED VPIX COUNT
+                  SM        <= LINE_INVALID;                   -- MOVE TO LINE_INVALID
+               ELSE                                            -- OTHERWISE
+                  SM        <= LINE_VALID;                     -- STAY IN LINE_VALID STATE
                END IF;
 
             WHEN LINE_INVALID =>                               -- LINE_INVALID
-               IF( IPIX_CNTR > VIDEO_IPIX - 1 ) THEN           -- IF WE HAVE REACHED VPIX COUNT
-                  SM <= LINE_VALID;                            -- MOVE TO LINE_INVALID
+               IF( IPIX_CNTR >= VIDEO_IPIX - 1 ) THEN          -- IF WE HAVE REACHED VPIX COUNT
+                  IF( VLIN_CNTR >= VIDEO_VLIN - 1 ) THEN       -- CHECK FOR END OF FRAME
+                     SM        <= FRAME_INVALID;               -- MODE TO FRAME_INVALID
+                     VLIN_CNTR <= (OTHERS => '0');             -- AND CLEAR LINE COUNTER
+                  ELSE                                         -- OTHERWISE
+                     SM        <= LINE_VALID;                  -- MOVE TO LINE_VALID
+                     VLIN_CNTR <= VLIN_CNTR + 1;               -- AND INCREMENT LINE COUNTER
+                  END IF;
                ELSE                                            -- OTHERWISE
-                  SM <= LINE_INVALID;                          -- STAY IN LINE_VALID STATE
+                  SM        <= LINE_INVALID;                   -- STAY IN LINE_VALID STATE
+                  VLIN_CNTR <= VLIN_CNTR;                      -- AND DONT INCREMENT LINE COUNTER
                END IF;
                
             WHEN OTHERS =>                                     -- UNKNOWN STATE
@@ -141,6 +154,11 @@ BEGIN
                INT_TIME_CNTR  <= INT_TIME_CNTR + 1;
                VPIX_CNTR      <= (OTHERS => '0');
                IPIX_CNTR      <= (OTHERS => '0');
+
+            WHEN FRONT_PORCH =>                                -- FRONT_PORCH
+               INT_TIME_CNTR  <= (OTHERS => '0');
+               VPIX_CNTR      <= (OTHERS => '0');
+               IPIX_CNTR      <= IPIX_CNTR + 1;
 
             WHEN LINE_VALID =>                                 -- LINE_VALID STATE
                INT_TIME_CNTR  <= (OTHERS => '0');
@@ -180,6 +198,11 @@ BEGIN
 
             WHEN FRAME_INVALID =>  
                FVAL_REG  <= '0';            
+               LVAL_REG  <= '0';            
+               DATA_CNTR <= (OTHERS => '0');
+
+            WHEN FRONT_PORCH =>                                -- FRONT_PORCH
+               FVAL_REG  <= '1';            
                LVAL_REG  <= '0';            
                DATA_CNTR <= (OTHERS => '0');
 
