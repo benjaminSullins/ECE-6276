@@ -36,26 +36,34 @@ end tb_sobel;
 
 architecture Behavioral of tb_sobel is
     component sobel is
-        Port ( clk : in STD_LOGIC;
-               rst : in STD_LOGIC;
-               d_in : in STD_LOGIC_VECTOR (7 downto 0);
-               fval_in : in STD_LOGIC := '1';
-               lval_in : in STD_LOGIC := '1';
-               d_out : out STD_LOGIC_VECTOR (7 downto 0);
-               fval_out : out STD_LOGIC;
-               lval_out : out STD_LOGIC);
+    Port ( clk : in STD_LOGIC;
+           rst : in STD_LOGIC;
+           fval_in : in STD_LOGIC := '0';
+           lval_in : in STD_LOGIC := '0';
+           d_in : in unsigned (7 downto 0);
+           
+           fval_out : out STD_LOGIC := '0';
+           lval_out : out STD_LOGIC := '0';
+           vert_out : out unsigned (7 downto 0);
+           horz_out : out unsigned (7 downto 0);
+           sum_out  : out unsigned (7 downto 0));
     end component sobel;
 
     constant T: time := 20 ns;
 
     signal clk_int : std_logic;
-    signal d_in_int: std_logic_vector (7 downto 0) := "00000000";
-    signal d_out_int: std_logic_vector (7 downto 0);
+    signal d_in_int: unsigned (7 downto 0) := "00000000";
+    signal horz_out_int: unsigned (7 downto 0):= (others => '0');
+    signal vert_out_int: unsigned (7 downto 0):= (others => '0');
+    signal sum_out_int: unsigned (7 downto 0):= (others => '0');
     signal cnt : natural := 0;
 
 begin
-    dut : sobel port map(clk => clk_int, rst => '0', d_in => d_in_int, d_out => d_out_int,
-                         fval_in => open, lval_in => open, fval_out => open, lval_out => open);
+    dut : sobel port map(clk => clk_int, rst => '0', d_in => d_in_int,
+                         sum_out => sum_out_int, vert_out => vert_out_int,
+                         horz_out => horz_out_int,
+                         fval_in => open, lval_in => open, 
+                         fval_out => open, lval_out => open);
     
     clkgen: 
     process is 
@@ -78,7 +86,7 @@ begin
     process (clk_int) is
     begin
         if rising_edge(clk_int) then
-            d_in_int <= std_logic_vector(unsigned(d_in_int) + 1);
+            d_in_int <= d_in_int + 1;
         end if;
     end process;
 end Behavioral;

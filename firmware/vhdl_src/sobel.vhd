@@ -37,12 +37,15 @@ entity sobel is
     Generic(N : natural := 8);
     Port ( clk : in STD_LOGIC;
            rst : in STD_LOGIC;
-           d_in : in STD_LOGIC_VECTOR (7 downto 0);
            fval_in : in STD_LOGIC;
            lval_in : in STD_LOGIC;
-           d_out : out STD_LOGIC_VECTOR (7 downto 0);
+           d_in : in unsigned (7 downto 0);
+           
            fval_out : out STD_LOGIC;
-           lval_out : out STD_LOGIC);
+           lval_out : out STD_LOGIC;
+           vert_out : out unsigned (7 downto 0);
+           horz_out : out unsigned (7 downto 0);
+           sum_out  : out unsigned (7 downto 0));
 end sobel;
 
 architecture Behavioral of sobel is
@@ -54,12 +57,12 @@ architecture Behavioral of sobel is
                rstb : in std_logic;
                wea  : in std_logic;
                web  : in std_logic;
-               addra: in std_logic_vector (2 downto 0);
-               addrb: in std_logic_vector (2 downto 0);
-               dina : in std_logic_vector (7 downto 0) := (others => '1'); 
-               dinb : in std_logic_vector (7 downto 0);
-               douta: out std_logic_vector (7 downto 0);
-               doutb: out std_logic_vector (7 downto 0) := (others => '1')
+               addra: in unsigned (2 downto 0);
+               addrb: in unsigned (2 downto 0);
+               dina : in unsigned (7 downto 0) := (others => '1'); 
+               dinb : in unsigned (7 downto 0);
+               douta: out unsigned (7 downto 0);
+               doutb: out unsigned (7 downto 0) := (others => '1')
               );   
     end component line_buff_240;
     
@@ -73,22 +76,22 @@ architecture Behavioral of sobel is
                  c_h : signed (2 downto 0));
         Port ( clk : in STD_LOGIC;
                rst : in std_logic;
-               in1 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-               in2 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-               in3 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-               dout : out STD_LOGIC_VECTOR (N - 1 downto 0));
+               in1 : in unsigned (N - 1 downto 0);
+               in2 : in unsigned (N - 1 downto 0);
+               in3 : in unsigned (N - 1 downto 0);
+               dout: out unsigned (N - 1 downto 0));
     end component filter_mask_3x3;
     
     constant line_buffer_depth : natural := 4;
-
---    signal cntA      : unsigned (7 downto 0) := (others => '0');
---    signal cntB      : unsigned (7 downto 0) := (others => '0');              
-    signal read_addr : std_logic_vector (2 downto 0);
-    signal write_addr: std_logic_vector (2 downto 0);
-    signal din   : std_logic_vector (N-1 downto 0);
-    signal tap_1 : std_logic_vector (N-1 downto 0);
-    signal tap_2 : std_logic_vector (N-1 downto 0);
-    signal d_horz: std_logic_vector (N-1 downto 0);
+            
+    signal read_addr : unsigned (2 downto 0);
+    signal write_addr: unsigned (2 downto 0);
+    signal din   : unsigned (N-1 downto 0);
+    signal tap_1 : unsigned (N-1 downto 0);
+    signal tap_2 : unsigned (N-1 downto 0);
+    signal d_horz: unsigned (N-1 downto 0);
+    signal d_vert: unsigned (N-1 downto 0);
+    signal d_sum : unsigned (N downto 0);
                   
 begin
     ----------------------------------------------------------------------------
@@ -114,44 +117,74 @@ begin
                                             in1 => din,
                                             in2 => tap_1,
                                             in3 => tap_2,
-                                            dout => d_horz);
+                                            unsigned(dout) => d_horz);
+                                            
+    vert_filter : filter_mask_3x3 generic map (N => N,
+                                               a_v => "001", b_v => "000", c_v =>"111",
+                                               a_h => "001", b_h =>"010", c_h =>"001")
+                                  port map (clk => clk, rst => rst, 
+                                            in1 => din,
+                                            in2 => tap_1,
+                                            in3 => tap_2,
+                                            dout => d_vert);                                            
     
-    d_out <= d_horz;
+    ----------------------------------------------------------------------------
+    ---------------------- I/O and Address Counters ----------------------------
+    ----------------------------------------------------------------------------    
     
     -- Input Capture
     clkin:
-        process (clk, rst) is
-        begin
-            if(rst = '1') then
-                din <= (others => '0');
-            elsif rising_edge(clk) then
-                din <= d_in;
-            end if;
-        end process clkin;
+    process (clk, rst) is
+    begin
+        if(rst = '1') then
+            din <= (others => '0');
+        elsif rising_edge(clk) then
+            din <= d_in;
+        end if;
+    end process clkin;
     
+    -- Output
+    output: 
+    process (clk, rst) is
+    begin
+        if(rst = '1') then
+            horz_out <= (others => '0');
+            vert_out <= (others => '0');
+            sum_out <= (others => '0');
+        elsif rising_edge(clk) then
+            horz_out <= d_horz;
+            vert_out <= d_vert;
+            -- Sum Vert and Horz Divide-b
+            sum_out <= d_sum(N downto 1);
+        end if;
+    end process output;
+   d_sum <= resize(d_horz, d_sum'length) + resize(d_vert, d_sum'length);
+   
     -- Circular Address Counter
     addr_count: 
-        process (clk, rst) is
-            variable cntA : unsigned (2 downto 0) := (others => '0');
-            variable cntB : unsigned (2 downto 0) := (others => '0');
-        begin
-            if(rst = '1') then
+    process (clk, rst) is
+        variable cntA : unsigned (2 downto 0) := (others => '0');
+        variable cntB : unsigned (2 downto 0) := (others => '0');
+    begin
+        if(rst = '1') then
+            cntB := (others => '0');
+            cntA := (others => '0');
+            write_addr <= (others <= '0');
+            read_addr <= (others <= '0');
+        elsif rising_edge(clk) then
+            cntB := cntA + 1;
+            if (cntB = line_buffer_depth) then
                 cntB := (others => '0');
-                cntA := (others => '0');
-            elsif rising_edge(clk) then
-                cntB := cntA + 1;
-                if (cntB = line_buffer_depth) then
-                    cntB := (others => '0');
-                end if;
-                
-                write_addr <= std_logic_vector(cntA);
-                read_addr  <= std_logic_vector(cntB);
-                
-                cntA := cntA + 1;
-                if (cntA = line_buffer_depth) then
-                    cntA := (others => '0');
-                end if;
             end if;
-        end process addr_count; 
+                
+        write_addr <= cntA;
+        read_addr  <= cntB;
+                
+        cntA := cntA + 1;
+            if (cntA = line_buffer_depth) then
+                cntA := (others => '0');
+            end if;
+        end if;
+    end process addr_count; 
 
 end Behavioral;

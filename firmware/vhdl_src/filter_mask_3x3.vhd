@@ -42,70 +42,82 @@ entity filter_mask_3x3 is
              c_h : signed (2 downto 0) := "101");
     Port ( clk : in STD_LOGIC;
            rst : in std_logic;
-           in1 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-           in2 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-           in3 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-           dout : out STD_LOGIC_VECTOR (N - 1 downto 0));
+           in1 : in unsigned (N - 1 downto 0);
+           in2 : in unsigned (N - 1 downto 0);
+           in3 : in unsigned (N - 1 downto 0);
+           dout : out unsigned (N - 1 downto 0));
 end filter_mask_3x3;
 
 architecture Behavioral of filter_mask_3x3 is
  
-    signal mult_a_v : signed (N+2 downto 0);
-    signal mult_b_v : signed (N+2 downto 0);
-    signal mult_c_v : signed (N+2 downto 0);
-    signal sum_v    : signed (N+3 downto 0);
+    signal multAv   : signed (N+2 downto 0);
+    signal multBv   : signed (N+2 downto 0);
+    signal multCv   : signed (N+2 downto 0);
+    signal sumV     : signed (N+3 downto 0);
     
-    signal mult_a_h : signed (N+6 downto 0);
-    signal mult_b_h : signed (N+6 downto 0);
-    signal mult_c_h : signed (N+6 downto 0);
-    signal sum_h1   : signed (N+7 downto 0);
-    signal sum_h2   : signed (N+8 downto 0);
+    signal multAh   : signed (N+6 downto 0);
+    signal multBh   : signed (N+6 downto 0);
+    signal multCh   : signed (N+6 downto 0);
     
-    signal d_dly1   : signed (N+6 downto 0);
-    signal d_dly2   : signed (N+7 downto 0);
+    signal lineDly1 : signed (N+6 downto 0);
     
-    signal dout_int : signed (N+8 downto 0);
+    signal sumh1    : signed (N+7 downto 0);
+    signal sumh2    : signed (N+8 downto 0);
+    
+    signal dout_int : unsigned (N+8 downto 0);
     
 begin
 
-    -- Math operations
-    mult_a_v <= signed(in1) * a_v;
-    mult_b_v <= signed(in2) * b_v;
-    mult_c_v <= signed(in3) * c_v;
-    sum_v <= resize(mult_a_v, mult_a_v'length + 1) + 
-             resize(mult_b_v, mult_b_v'length + 1) + 
-             resize(mult_c_v, mult_c_v'length + 1);
-   
-    mult_a_h <= sum_v * a_h;
-    mult_b_h <= sum_v * b_h;
-    mult_c_h <= sum_v * c_h;
-    sum_h1   <= resize(d_dly1, d_dly1'length + 1) + resize(mult_b_h, mult_b_h'length + 1);
-    sum_h2   <= resize(d_dly2, d_dly2'length + 1) + resize(mult_c_h, mult_c_h'length + 1);
-    
-    -- Delay Capture
-    datadelay:
+    -- Math operations and line delays
+    clkmath:
     process (clk, rst) is
     begin
         if(rst = '1') then
-            d_dly1 <= (others => '0');
-            d_dly2 <= (others => '0');
-        elsif rising_edge(clk) then 
-            d_dly1 <= mult_a_h;
-            d_dly2 <= sum_h1;
+            multAv  <= (others => '0');
+            multBv  <= (others => '0');
+            multCv  <= (others => '0');
+            sumV    <= (others => '0');
+            
+            multAh  <= (others => '0');
+            multBh  <= (others => '0');
+            multCh  <= (others => '0');
+            
+            lineDly1 <= (others => '0');
+            
+            sumh1    <= (others => '0');
+            sumh2    <= (others => '0');
+            
+            dout     <= (others => '0');    
+        elsif rising_edge(clk) then
+            multAv  <= signed(in1) * a_v;
+            multBv  <= signed(in2) * b_v;
+            multCv  <= signed(in3) * c_v;
+            sumV    <= resize(multAv, sumV'length)+
+                       resize(multBv, sumV'length)+ 
+                       resize(multCv, sumV'length);
+            
+            multAh  <= sumV * a_h;
+            multBh  <= sumV * b_h;
+            multCh  <= sumV * c_h;
+            
+            lineDly1 <= multAh;
+            
+            sumh1    <= resize(lineDly1, sumh1'length) + 
+                        resize(multBh, sumh1'length);
+            sumh2    <= resize(sumh1, sumh2'length) + 
+                        resize(multCh, sumh2'length);
+            
+            dout_int <= unsigned(abs(sumh2));
+            dout     <= dout_int (N-1 downto 0);
         end if;
-    end process datadelay;
+    end process clkmath;
     
     -- Output Capture
         clkout:
         process (clk, rst) is
         begin
             if(rst = '1') then
-                dout_int <= (others => '0');
             elsif rising_edge(clk) then 
-                dout_int <= abs(resize(d_dly2, d_dly2'length + 1) + resize(mult_c_h, d_dly2'length + 1));
             end if;
         end process clkout;
-    
-    -- Assign Output 
-    dout <= std_logic_vector(dout_int(7 downto 0));
 end Behavioral;

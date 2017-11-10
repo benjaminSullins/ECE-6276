@@ -38,38 +38,38 @@ end tb_filter_mask_3x3;
 architecture Behavioral of tb_filter_mask_3x3 is
     component filter_mask_3x3 is
     Generic( N : natural := 8;
-             a_v : signed (2 downto 0) := "010";
-             b_v : signed (2 downto 0) := "010";
-             c_v : signed (2 downto 0) := "010";
-             a_h : signed (2 downto 0) := "010";
-             b_h : signed (2 downto 0) := "001";
-             c_h : signed (2 downto 0) := "101");
+             a_v : signed (2 downto 0);
+             b_v : signed (2 downto 0);
+             c_v : signed (2 downto 0);
+             a_h : signed (2 downto 0);
+             b_h : signed (2 downto 0);
+             c_h : signed (2 downto 0));
     Port ( clk : in STD_LOGIC;
            rst : in std_logic;
-           in1 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-           in2 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-           in3 : in STD_LOGIC_VECTOR (N - 1 downto 0);
-           dout : out STD_LOGIC_VECTOR (N - 1 downto 0));
+           in1 : in unsigned (N - 1 downto 0);
+           in2 : in unsigned (N - 1 downto 0);
+           in3 : in unsigned (N - 1 downto 0);
+           dout : out unsigned (N - 1 downto 0));
     end component filter_mask_3x3;
 
     constant T: time := 20 ns;
 
     signal clk_int : std_logic;
-    signal din: std_logic_vector (7 downto 0)   := "00001011";
-    signal tap_1: std_logic_vector (7 downto 0) := "00000110";
-    signal tap_2: std_logic_vector (7 downto 0) := "00000001";
-    signal d_horz: std_logic_vector (7 downto 0);
+    signal din: unsigned (7 downto 0)   := "00001101";
+    signal tap_1: unsigned (7 downto 0) := "00001000";
+    signal tap_2: unsigned (7 downto 0) := "00000011";
+    signal d_out: unsigned (7 downto 0);
     signal cnt : natural := 0;
 
 begin
-    horz_filter : filter_mask_3x3 generic map (N => 8,
-                                           a_v => "001", b_v => "010", c_v =>"001",
-                                           a_h => "111", b_h =>"000", c_h =>"001")
+    dut : filter_mask_3x3 generic map (N => 8,
+                                       a_v => "001", b_v => "000", c_v =>"111",
+                                       a_h => "001", b_h =>"010", c_h =>"001")
                               port map (clk => clk_int, rst => '0', 
                                         in1 => din,
                                         in2 => tap_1,
                                         in3 => tap_2,
-                                        dout => d_horz);
+                                        dout => d_out);
     
     clkgen: 
     process is 
@@ -84,7 +84,7 @@ begin
     process (clk_int) is
     begin
         if rising_edge(clk_int) then
-         cnt <= cnt + 1;
+            cnt <= cnt + 1;
         end if;
     end process;
 
