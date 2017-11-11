@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/core_src/transpose_bram/sim/transpose_bram.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module transpose_bram
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/project_1/project_1.sim/sim_1/behav/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl
