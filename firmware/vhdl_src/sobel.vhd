@@ -34,22 +34,25 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity sobel is
-    Generic(N : natural := 8);
+    Generic(N : natural := 8;               -- Data Width 
+            LINE_WIDTH : natural := 160;      -- Image Line Width (5 or 160)
+            ADDRESS_BUS_WIDTH : natural := 8-- FIFO Address Width
+            );          
     Port ( clk : in STD_LOGIC;
            rst : in STD_LOGIC;
-           fval_in : in STD_LOGIC;
-           lval_in : in STD_LOGIC;
+           fval_in : in STD_LOGIC :='0';
+           lval_in : in STD_LOGIC :='0';
            d_in : in unsigned (7 downto 0);
            
-           fval_out : out STD_LOGIC;
-           lval_out : out STD_LOGIC;
+           fval_out : out STD_LOGIC :='0';
+           lval_out : out STD_LOGIC :='0';
            vert_out : out unsigned (7 downto 0);
            horz_out : out unsigned (7 downto 0);
            sum_out  : out unsigned (7 downto 0));
 end sobel;
 
 architecture Behavioral of sobel is
-    component line_buff_240 is
+    component line_buff_4 is
         Port ( 
                clka : in std_logic;
                clkb : in std_logic;
@@ -57,14 +60,31 @@ architecture Behavioral of sobel is
                rstb : in std_logic;
                wea  : in std_logic;
                web  : in std_logic;
-               addra: in unsigned (2 downto 0);
-               addrb: in unsigned (2 downto 0);
+               addra: in unsigned (1 downto 0);
+               addrb: in unsigned (1 downto 0);
                dina : in unsigned (7 downto 0) := (others => '1'); 
                dinb : in unsigned (7 downto 0);
                douta: out unsigned (7 downto 0);
                doutb: out unsigned (7 downto 0) := (others => '1')
               );   
-    end component line_buff_240;
+    end component line_buff_4;
+
+    component line_buff_159 is
+        Port ( 
+               clka : in std_logic;
+               clkb : in std_logic;
+               rsta : in std_logic;
+               rstb : in std_logic;
+               wea  : in std_logic;
+               web  : in std_logic;
+               addra: in unsigned (7 downto 0);
+               addrb: in unsigned (7 downto 0);
+               dina : in unsigned (7 downto 0) := (others => '1'); 
+               dinb : in unsigned (7 downto 0);
+               douta: out unsigned (7 downto 0);
+               doutb: out unsigned (7 downto 0) := (others => '1')
+              );   
+    end component line_buff_159;
     
     component filter_mask_3x3 is
         Generic( N : natural;
@@ -82,10 +102,11 @@ architecture Behavioral of sobel is
                dout: out unsigned (N - 1 downto 0));
     end component filter_mask_3x3;
     
-    constant line_buffer_depth : natural := 4;
-            
-    signal read_addr : unsigned (2 downto 0);
-    signal write_addr: unsigned (2 downto 0);
+    signal fval_int : std_logic_vector (0 to 2*(LINE_WIDTH-1) + 8);
+    signal lval_int : std_logic_vector (0 to 2*(LINE_WIDTH-1) + 8);
+               
+    signal read_addr : unsigned (ADDRESS_BUS_WIDTH - 1 downto 0);
+    signal write_addr: unsigned (ADDRESS_BUS_WIDTH - 1 downto 0);
     signal din   : unsigned (N-1 downto 0);
     signal tap_1 : unsigned (N-1 downto 0);
     signal tap_2 : unsigned (N-1 downto 0);
@@ -97,18 +118,39 @@ begin
     ----------------------------------------------------------------------------
     ---------------------- Line Buffer Components ------------------------------
     ----------------------------------------------------------------------------
-    line_buff_1 : line_buff_240 port map (clka => clk, clkb => clk, rsta => rst,
+
+    -- Conditional Generate
+    SimSize:
+    if(LINE_WIDTH = 5) GENERATE         -- If Line Width Is 5 gen 4 depth buffs
+    line_buff_1 : line_buff_4 port map (clka => clk, clkb => clk, rsta => rst,
                                           rstb => rst, wea => '0', web => '1',
                                           addra => read_addr, 
                                           addrb => write_addr,
                                           dina => din, dinb => din, 
                                           douta => tap_1, doutb => open);
-    line_buff_2 : line_buff_240 port map (clka => clk, clkb => clk, rsta => rst,
+    line_buff_2 : line_buff_4 port map (clka => clk, clkb => clk, rsta => rst,
                                           rstb => rst, wea => '0', web => '1',
                                           addra => read_addr, 
                                           addrb => write_addr,
                                           dina => tap_1, dinb => tap_1, 
                                           douta => tap_2, doutb => open);
+     END GENERATE;                                     
+                                          
+     Line_160_size:
+     if(LINE_WIDTH = 160) GENERATE          -- If Line Width is 160 gen 159 depth buffs
+     line_buff_1 : line_buff_159 port map (clka => clk, clkb => clk, rsta => rst,
+                                           rstb => rst, wea => '0', web => '1',
+                                           addra => read_addr, 
+                                           addrb => write_addr,
+                                           dina => din, dinb => din, 
+                                           douta => tap_1, doutb => open);
+     line_buff_2 : line_buff_159 port map (clka => clk, clkb => clk, rsta => rst,
+                                           rstb => rst, wea => '0', web => '1',
+                                           addra => read_addr, 
+                                           addrb => write_addr,
+                                           dina => tap_1, dinb => tap_1, 
+                                           douta => tap_2, doutb => open);
+      END GENERATE;                                          
     
     horz_filter : filter_mask_3x3 generic map (N => N,
                                                a_v => "001", b_v => "010", c_v =>"001",
@@ -117,7 +159,7 @@ begin
                                             in1 => din,
                                             in2 => tap_1,
                                             in3 => tap_2,
-                                            unsigned(dout) => d_horz);
+                                            dout => d_horz);
                                             
     vert_filter : filter_mask_3x3 generic map (N => N,
                                                a_v => "001", b_v => "000", c_v =>"111",
@@ -163,17 +205,17 @@ begin
     -- Circular Address Counter
     addr_count: 
     process (clk, rst) is
-        variable cntA : unsigned (2 downto 0) := (others => '0');
-        variable cntB : unsigned (2 downto 0) := (others => '0');
+        variable cntA : unsigned (ADDRESS_BUS_WIDTH-1 downto 0) := (others => '0');
+        variable cntB : unsigned (ADDRESS_BUS_WIDTH-1 downto 0) := (others => '0');
     begin
         if(rst = '1') then
             cntB := (others => '0');
             cntA := (others => '0');
-            write_addr <= (others <= '0');
-            read_addr <= (others <= '0');
+            write_addr <= (others => '0');
+            read_addr <= (others => '0');
         elsif rising_edge(clk) then
             cntB := cntA + 1;
-            if (cntB = line_buffer_depth) then
+            if (cntB = LINE_WIDTH-1) then
                 cntB := (others => '0');
             end if;
                 
@@ -181,10 +223,25 @@ begin
         read_addr  <= cntB;
                 
         cntA := cntA + 1;
-            if (cntA = line_buffer_depth) then
+            if (cntA = LINE_WIDTH-1) then
                 cntA := (others => '0');
             end if;
         end if;
     end process addr_count; 
-
+    
+    -- Valid Signal
+    validate:
+    process (clk, rst) is
+    begin
+        if(rst = '1') then
+            fval_int <= (others => '0');
+            lval_int <= (others => '0');
+        elsif rising_edge(clk) then
+            fval_int <= fval_in & fval_int(0 to fval_int'length -2);
+            lval_int <= lval_in & lval_int(0 to lval_int'length -2);
+        end if;
+    end process validate;
+    fval_out <= fval_int(fval_int'length-1);
+    lval_out <= lval_int(lval_int'length-1);
+    
 end Behavioral;

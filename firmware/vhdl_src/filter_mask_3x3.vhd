@@ -87,6 +87,7 @@ begin
             sumh1    <= (others => '0');
             sumh2    <= (others => '0');
             
+            dout_int <= (others => '0');
             dout     <= (others => '0');    
         elsif rising_edge(clk) then
             multAv  <= signed(in1) * a_v;
