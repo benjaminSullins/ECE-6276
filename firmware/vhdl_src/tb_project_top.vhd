@@ -32,12 +32,14 @@ ARCHITECTURE TB_FILTER_ARCH OF TB_FILTER IS
    COMPONENT PROJECT_TOP IS
    PORT(
       CLK        : IN STD_LOGIC;
-      RST        : IN STD_LOGIC
+      RST        : IN STD_LOGIC;
+	  SWT        : IN STD_LOGIC_VECTOR(1 DOWNTO 0)
    );
    END COMPONENT;
 
    SIGNAL   CLK      : STD_LOGIC;
    SIGNAL   RST      : STD_LOGIC := '1';
+   SIGNAL   SWT      : STD_LOGIC_VECTOR(1 downto 0) := "00";
 
    CONSTANT T        : TIME := 200 NS;
 
@@ -70,7 +72,8 @@ BEGIN
    DUT : PROJECT_TOP
    PORT MAP(
       CLK     => CLK,     
-      RST     => RST
+      RST     => RST,
+	  SWT     => SWT
    );
 
 END TB_FILTER_ARCH;
