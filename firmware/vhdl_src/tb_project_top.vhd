@@ -39,7 +39,7 @@ ARCHITECTURE TB_FILTER_ARCH OF TB_FILTER IS
 
    SIGNAL   CLK      : STD_LOGIC;
    SIGNAL   RST      : STD_LOGIC := '1';
-   SIGNAL   SWT      : STD_LOGIC_VECTOR(1 downto 0) := "00";
+   SIGNAL   SWT      : STD_LOGIC_VECTOR(1 downto 0) := "01";
 
    CONSTANT T        : TIME := 200 NS;
 
