@@ -1,8 +1,0 @@
-0.6
-2017.2
-Aug  9 2017
-16:49:39
-C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/packages/generic_utilities.vhd,1510428103,vhdl,C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/fake_camera.vhd;C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/project_top.vhd;C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/video_transpose.vhd,,,generic_utilities,,,,,,,,
-C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/fake_camera.vhd,1510428103,vhdl,C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/project_top.vhd,,,fake_camera,,,,,,,,
-C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/project_top.vhd,1510429156,vhdl,,,,project_top,,,,,,,,
-C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/video_transpose.vhd,1510426023,vhdl,C:/Users/grego/Documents/TortoiseGIT/ECE6276_project/ECE-6276/firmware/vhdl_src/project_top.vhd,,,video_transpose,,,,,,,,

@@ -1,9 +1,0 @@
-# compile vhdl design source files
-vhdl work  "../../../../packages/generic_utilities.vhd"
-vhdl work  "../../../../vhdl_src/fake_camera.vhd"
-vhdl work  "../../../../vhdl_src/video_transpose.vhd"
-vhdl work  "../../../../vhdl_src/project_top.vhd"
-vhdl xil_defaultlib  "../../../../vhdl_src/tb_project_top.vhd"
-
-# Do not sort compile order
-nosort
