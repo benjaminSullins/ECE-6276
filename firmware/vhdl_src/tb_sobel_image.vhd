@@ -7,8 +7,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.math_real.all;
-use std.env.all;
+--use ieee.math_real.all;
+--use std.env.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
 
@@ -152,7 +152,7 @@ begin
                 file_close(horz_output_file_data);
                 file_close(sum_output_file_data);
                 report "Test Completed Successfully";
-                stop(0);
+--                stop(0);
             end if;
         end if;  
     end if;

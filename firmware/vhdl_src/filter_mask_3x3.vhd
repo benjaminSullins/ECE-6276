@@ -65,7 +65,8 @@ architecture Behavioral of filter_mask_3x3 is
     signal sumh2    : signed (N+8 downto 0);
     
     signal dout_int : unsigned (N+8 downto 0);
-    
+    constant M      : natural := dout_int'length;
+   
 begin
 
     -- Math operations and line delays
@@ -87,8 +88,7 @@ begin
             sumh1    <= (others => '0');
             sumh2    <= (others => '0');
             
-            dout_int <= (others => '0');
-            dout     <= (others => '0');    
+            dout_int <= (others => '0');  
         elsif rising_edge(clk) then
             multAv  <= signed(in1) * a_v;
             multBv  <= signed(in2) * b_v;
@@ -109,16 +109,24 @@ begin
                         resize(multCh, sumh2'length);
             
             dout_int <= unsigned(abs(sumh2));
-            dout     <= dout_int (N-1 downto 0);
         end if;
     end process clkmath;
     
-    -- Output Capture
+    
+    -- Saturation Logic and Output
         clkout:
         process (clk, rst) is
+            variable MSbs : unsigned (M-N-1 downto 0);
         begin
             if(rst = '1') then
+                dout <= (others => '0');
             elsif rising_edge(clk) then 
+                MSbs := dout_int(M-1 downto N);
+                if(MSbs = "000000000") then          -- No overflow
+                    dout <= dout_int(N-1 downto 0);
+                else                                 -- Overflow
+                    dout <= "11111111";              -- Saturate
+                end if;
             end if;
         end process clkout;
 end Behavioral;
