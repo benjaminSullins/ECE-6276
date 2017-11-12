@@ -39,6 +39,7 @@ ENTITY VIDEO_VGA_CONVERTER IS
         LVAL_IN       : IN STD_LOGIC;
         DATA_IN       : IN STD_LOGIC_VECTOR(VIDEO_BITS - 1 DOWNTO 0);
 
+        VGA_CLK     : IN  STD_LOGIC;
         VGA_HS_O    : OUT STD_LOGIC;
         VGA_VS_O    : OUT STD_LOGIC;
         VGA_RED_O   : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
@@ -49,12 +50,12 @@ END VIDEO_VGA_CONVERTER;
 
 ARCHITECTURE BEHAVIORAL OF VIDEO_VGA_CONVERTER IS
 
-  COMPONENT VGA_CLK_GEN
-    PORT (
-           CLK_IN1  : IN STD_LOGIC;
-           CLK_OUT1 : OUT STD_LOGIC
-         );
-  END COMPONENT;
+  -- COMPONENT VGA_CLK_GEN
+  --   PORT (
+  --          CLK_IN1  : IN STD_LOGIC;
+  --          CLK_OUT1 : OUT STD_LOGIC
+  --        );
+  -- END COMPONENT;
 
   COMPONENT VGA_BRAM 
     PORT (
@@ -115,11 +116,13 @@ ARCHITECTURE BEHAVIORAL OF VIDEO_VGA_CONVERTER IS
 
 BEGIN
 
-  VGA_CLK : VGA_CLK_GEN
-  PORT MAP (
-             CLK_IN1  => CLK,
-             CLK_OUT1 => PXL_CLK
-           );
+  -- VGA_CLK : VGA_CLK_GEN
+  -- PORT MAP (
+  --            CLK_IN1  => CLK,
+  --            CLK_OUT1 => PXL_CLK
+  --          );
+
+  PXL_CLK <= VGA_CLK;
 
   BRAM : VGA_BRAM 
   PORT MAP (
