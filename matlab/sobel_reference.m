@@ -5,9 +5,9 @@ num_rows = 120;
 num_cols = 160;
 
 % Build a test image
-test_imag = uint8([128*ones(59, 79), 32*ones(59, 2), 128*ones(59,79);
-                   32*ones(2, 160);
-                   128*ones(59, 79), 32*ones(59, 2), 128*ones(59, 79)]);                 
+% test_imag = uint8([128*ones(59, 79), 32*ones(59, 2), 128*ones(59,79);
+%                    32*ones(2, 160);
+%                    128*ones(59, 79), 32*ones(59, 2), 128*ones(59, 79)]);                 
                    
 % test_imag = uint8(rgb2gray(imread('diamond.png')));
 
@@ -17,17 +17,32 @@ test_imag = uint8([128*ones(59, 79), 32*ones(59, 2), 128*ones(59,79);
 
 % test_imag = imread('coins.png');
 
-% test_imag = uint8(rgb2gray(imread('effiel.jpg')));
+% test_imag = uint8(rgb2gray(imread('input_files\effiel_1.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\effiel_2.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\golden_gate_bridge_1.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\golden_gate_bridge_2.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\golden_gate_bridge_3.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\chess_board_calibration.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\mario.png')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\moon.jpg')));
+
+% test_imag = uint8(rgb2gray(imread('input_files\face.jpg')));
+
+test_imag = uint8(rgb2gray(imread('input_files\yoshi.jpg')));
 
 test_imag = imresize(test_imag, [num_rows num_cols]);
 
 % Write image to text file for external processing on FPGA, output from FPGA can 
 % be compared to output of this script for reference/verification
 data = dec2bin(test_imag', 8);
-dlmwrite('image_data.txt', data, 'delimiter', '');
-% Write image PNG for reference
-imwrite(test_imag, 'test_image_reference', 'PNG');
-
+dlmwrite('output_files\image_data.txt', data, 'delimiter', '');
 %% Sobel Algorithm
 gx = [1 0 -1;
       2 0 -2;
@@ -68,11 +83,12 @@ for c = 2:l-2
     end
 end
 
+figure('Name', 'Sobel Algorithm Reference');
 subplot(2,2,1); imshow(test_imag);
 subplot(2,2,2); imshow(uint8(test_output_x));
 subplot(2,2,3); imshow(uint8(test_output_y));
 subplot(2,2,4); imshow(uint8(test_output_x) + uint8(test_output_y));
-
+print('output_files\sobel_algorithm_reference_images.png', '-dpng');
 
 %% Using MATLAB DIP Functions
 
@@ -80,8 +96,9 @@ subplot(2,2,4); imshow(uint8(test_output_x) + uint8(test_output_y));
 [edge_h, th_h] = edge(test_imag, 'sobel', 'horizontal');
 [edge_hv, th_hv] = edge(test_imag, 'sobel',  'both');
 
-figure;
+figure('Name', 'MATLAB DIP Functions References');
 subplot(2,2,1); imshow(test_imag);
 subplot(2,2,2); imshow(edge_v);
 subplot(2,2,3); imshow(edge_h);
 subplot(2,2,4); imshow(edge_hv);
+print('output_files\matlab_dip_funs_reference_images.png', '-dpng');
