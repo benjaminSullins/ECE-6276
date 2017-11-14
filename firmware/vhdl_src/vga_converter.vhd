@@ -50,13 +50,6 @@ END VIDEO_VGA_CONVERTER;
 
 ARCHITECTURE BEHAVIORAL OF VIDEO_VGA_CONVERTER IS
 
-  -- COMPONENT VGA_CLK_GEN
-  --   PORT (
-  --          CLK_IN1  : IN STD_LOGIC;
-  --          CLK_OUT1 : OUT STD_LOGIC
-  --        );
-  -- END COMPONENT;
-
   COMPONENT VGA_BRAM 
     PORT (
            CLKA : IN STD_LOGIC;
@@ -115,13 +108,6 @@ ARCHITECTURE BEHAVIORAL OF VIDEO_VGA_CONVERTER IS
 
 
 BEGIN
-
-  -- VGA_CLK : VGA_CLK_GEN
-  -- PORT MAP (
-  --            CLK_IN1  => CLK,
-  --            CLK_OUT1 => PXL_CLK
-  --          );
-
   PXL_CLK <= VGA_CLK;
 
   BRAM : VGA_BRAM 
@@ -137,7 +123,7 @@ BEGIN
              RSTB => RST,
              ENB => '1',
              WEB => "0", -- never writing
-             ADDRB => BRAM_OUT_ADDR(16 + UPSCALE_FACTOR - 1 DOWNTO UPSCALE_FACTOR - 1), -- ignore lowest bits so it will grab the same pixel multiple times for upscaling
+             ADDRB => BRAM_OUT_ADDR(16 + LOG2(UPSCALE_FACTOR) DOWNTO LOG2(UPSCALE_FACTOR)), -- ignore lowest bits so it will grab the same pixel multiple times for upscaling
              DINB => x"00",
              DOUTB => PIX_OUT_REG
            );
@@ -212,8 +198,10 @@ BEGIN
     IF RST = '1' THEN
       BRAM_IN_ADDR <= (OTHERS => '0');
     ELSIF RISING_EDGE(CLK) THEN
-      IF FVAL_IN_Z = '1' OR LVAL_IN_Z = '1'THEN
+      IF FVAL_IN_Z = '1' AND LVAL_IN_Z = '1'THEN
         BRAM_IN_ADDR <= STD_LOGIC_VECTOR(UNSIGNED(BRAM_IN_ADDR)+1);
+      ELSIF FVAL_IN_Z = '1' THEN
+        BRAM_IN_ADDR <= BRAM_IN_ADDR;
       ELSE
         BRAM_IN_ADDR <= (OTHERS => '0');
       END IF;
@@ -225,20 +213,21 @@ BEGIN
     IF RST = '1' THEN
       BRAM_OUT_ADDR <= (OTHERS => '0');
     ELSIF RISING_EDGE(PXL_CLK) THEN
-      IF V_CNT = 0 THEN
+      IF V_CNT > V_RES THEN
         BRAM_OUT_ADDR <= (OTHERS => '0');
         UPSCALE_CNT <= 0;
       ELSIF PIX_CNT = H_RES - 1 THEN
         PIX_CNT <= 0;
         IF UPSCALE_CNT < UPSCALE_FACTOR - 1 THEN
           -- increase upscale count, decrease addr to go back to beginning of row
-          BRAM_OUT_ADDR <= STD_LOGIC_VECTOR(UNSIGNED(BRAM_OUT_ADDR)-(H_RES - 1));
+          BRAM_OUT_ADDR <= STD_LOGIC_VECTOR(UNSIGNED(BRAM_OUT_ADDR)-(H_RES-1));
           UPSCALE_CNT <= UPSCALE_CNT + 1;
         ELSE
+          BRAM_OUT_ADDR <= BRAM_OUT_ADDR+1;
           UPSCALE_CNT <= 0;
         END IF;
-      ELSIF H_CNT >= H_FP - 1 AND H_CNT < H_FP + H_RES - 1 AND V_CNT >= V_FP AND V_CNT < V_FP + V_RES - 1 THEN
-        BRAM_OUT_ADDR <= STD_LOGIC_VECTOR(UNSIGNED(BRAM_OUT_ADDR)+1);
+      ELSIF H_CNT < H_RES AND V_CNT < V_RES THEN
+        BRAM_OUT_ADDR <= BRAM_OUT_ADDR+1;
         PIX_CNT <= PIX_CNT + 1;
       END IF;
     END IF;
@@ -246,7 +235,7 @@ BEGIN
 
   VGA_HS_O <= VGA_HS_REG;
   VGA_VS_O <= VGA_VS_REG;
-  VGA_RED_O <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(PIX_OUT_REG), 4));
-  VGA_BLUE_O <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(PIX_OUT_REG), 4));
-  VGA_GREEN_O <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(PIX_OUT_REG), 4));
+  VGA_RED_O <= PIX_OUT_REG(PIX_OUT_REG'LENGTH - 1 DOWNTO PIX_OUT_REG'LENGTH - 4);
+  VGA_BLUE_O <= PIX_OUT_REG(PIX_OUT_REG'LENGTH - 1 DOWNTO PIX_OUT_REG'LENGTH - 4);
+  VGA_GREEN_O <= PIX_OUT_REG(PIX_OUT_REG'LENGTH - 1 DOWNTO PIX_OUT_REG'LENGTH - 4);
 END BEHAVIORAL;
