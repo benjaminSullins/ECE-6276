@@ -12,13 +12,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="14758850000fs"></ZoomStartTime>
-      <ZoomEndTime time="14952350001fs"></ZoomEndTime>
-      <Cursor1Time time="14825100000fs"></Cursor1Time>
+      <ZoomStartTime time="446529500000fs"></ZoomStartTime>
+      <ZoomEndTime time="446862500001fs"></ZoomEndTime>
+      <Cursor1Time time="446605000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="221"></NameColumnWidth>
-      <ValueColumnWidth column_width="96"></ValueColumnWidth>
+      <ValueColumnWidth column_width="88"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="6" />
    <wvobject fp_name="/TB_FILTER/CLK" type="logic">
@@ -112,6 +112,7 @@
       <wvobject fp_name="/TB_FILTER/DUT/TP_GENERATOR/DATA_OUT" type="array">
          <obj_property name="ElementShortName">DATA_OUT[7:0]</obj_property>
          <obj_property name="ObjectShortName">DATA_OUT[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/TP_GENERATOR/SM" type="other">
          <obj_property name="ElementShortName">SM</obj_property>
@@ -226,8 +227,8 @@
          <obj_property name="ObjectShortName">LVAL_IN</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/DATA_IN" type="array">
-         <obj_property name="ElementShortName">DATA_IN[7:0]</obj_property>
-         <obj_property name="ObjectShortName">DATA_IN[7:0]</obj_property>
+         <obj_property name="ElementShortName">DATA_IN[3:0]</obj_property>
+         <obj_property name="ObjectShortName">DATA_IN[3:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_HS_O" type="logic">
          <obj_property name="ElementShortName">VGA_HS_O</obj_property>
@@ -288,10 +289,12 @@
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/BRAM_IN_ADDR" type="array">
          <obj_property name="ElementShortName">BRAM_IN_ADDR[16:0]</obj_property>
          <obj_property name="ObjectShortName">BRAM_IN_ADDR[16:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/BRAM_OUT_ADDR" type="array">
          <obj_property name="ElementShortName">BRAM_OUT_ADDR[19:0]</obj_property>
          <obj_property name="ObjectShortName">BRAM_OUT_ADDR[19:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/UPSCALE_CNT" type="other">
          <obj_property name="ElementShortName">UPSCALE_CNT</obj_property>

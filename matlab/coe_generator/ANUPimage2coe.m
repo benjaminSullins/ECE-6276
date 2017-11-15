@@ -4,15 +4,23 @@
 % Read the image from the file
  [filename, pathname] = uigetfile('*.bmp;*.tif;*.jpg;*.pgm','Pick an M-file');
 img = imread(strcat(pathname, filename));
-img = imresize((img),[160 120]);
+img = imresize((img),[120 160]);
 [ row col p ] =size(img);
 
 if p == 3
     img = rgb2gray(img);
 end
 
+% for i = 1:160
+%     for j = 1:120
+%         img(j,i) = i;
+%     end
+% end
+
 % Image Transpose
 imgTrans = img';
+%imgTrans = img;
+
 % iD conversion
 img1D = imgTrans(:);
 % Decimal to Hex value conversion
