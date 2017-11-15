@@ -47,7 +47,7 @@ ARCHITECTURE PROJECT_TOP_ARCH OF PROJECT_TOP IS
    --        THIS WOULD TRANSLATE TO A VERY HIGH FRAME RATE, BUT FOR
    --        SIMULATION SAKE, IT'S KEEP SMALL.
    -----------------------------------------------------------------
-   CONSTANT VIDEO_BITS     : NATURAL :=    4; -- VIDEO DYNAMIC RANGE
+   CONSTANT VIDEO_BITS     : NATURAL :=    8; -- VIDEO DYNAMIC RANGE
    CONSTANT VIDEO_VPIX     : NATURAL :=  160; -- VALID PIXELS PER LINE
    CONSTANT VIDEO_VLIN     : NATURAL :=  120; -- VALID LINES
    CONSTANT VIDEO_IPIX     : NATURAL :=   16; -- INVALID PIXELS PER LINE
@@ -95,12 +95,19 @@ ARCHITECTURE PROJECT_TOP_ARCH OF PROJECT_TOP IS
    ALIAS  SOBEL_SLCT    : STD_LOGIC_VECTOR(1 DOWNTO 0) IS SW(4 DOWNTO 3);
 
    -----------------------------------------------------------------
+   -- TRANSPOSE SIGNALS
+   -----------------------------------------------------------------
+   CONSTANT VGA_BITS       : NATURAL := VGARED'LENGTH;
+   SIGNAL IMG_SCALING_FVAL : STD_LOGIC;
+   SIGNAL IMG_SCALING_LVAL : STD_LOGIC;
+   SIGNAL IMG_SCALING_DATA : STD_LOGIC_VECTOR(VGA_BITS - 1 DOWNTO 0);
+
+   -----------------------------------------------------------------
    -- VGA CONVERTER SIGNALS
    -----------------------------------------------------------------
    SIGNAL VGA_CLK       : STD_LOGIC;
 
 BEGIN
-
 
    ------------------------------------------------------------------------------
    --  OUTPUT     OUTPUT      PHASE    DUTY CYCLE   PK-TO-PK     PHASE
@@ -149,27 +156,27 @@ BEGIN
    -----------------------------------------------------------------
    -- INSTANTIATION OF THE VIDEO TRANSPOSE
    -----------------------------------------------------------------
---   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
---   GENERIC MAP(
---      VIDEO_BITS     => VIDEO_BITS, 
---      VIDEO_VPIX     => VIDEO_VPIX,
---      VIDEO_VLIN     => VIDEO_VLIN,
---      VIDEO_IPIX     => VIDEO_IPIX,       
---      VIDEO_INT_TIME => VIDEO_INT_TIME
---   )
---   PORT MAP(
---      CLK         => FAKE_CAMERA_CLK,
---      RST         => FAKE_CAMERA_RST,
---
---      FVAL_IN     => FAKE_CAMERA_FVAL,
---      LVAL_IN     => FAKE_CAMERA_LVAL,
---      DATA_IN     => FAKE_CAMERA_DATA,
---      
---      SWT         => TRANSPOSE_SLCT,
---      FVAL_OUT    => TRANSPOSE_FVAL,
---      LVAL_OUT    => TRANSPOSE_LVAL,
---      DATA_OUT    => TRANSPOSE_DATA
---   );
+   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
+   GENERIC MAP(
+      VIDEO_BITS     => VIDEO_BITS, 
+      VIDEO_VPIX     => VIDEO_VPIX,
+      VIDEO_VLIN     => VIDEO_VLIN,
+      VIDEO_IPIX     => VIDEO_IPIX,       
+      VIDEO_INT_TIME => VIDEO_INT_TIME
+   )
+   PORT MAP(
+      CLK         => FAKE_CAMERA_CLK,
+      RST         => FAKE_CAMERA_RST,
+
+      FVAL_IN     => FAKE_CAMERA_FVAL,
+      LVAL_IN     => FAKE_CAMERA_LVAL,
+      DATA_IN     => FAKE_CAMERA_DATA,
+      
+      SWT         => TRANSPOSE_SLCT,
+      FVAL_OUT    => TRANSPOSE_FVAL,
+      LVAL_OUT    => TRANSPOSE_LVAL,
+      DATA_OUT    => TRANSPOSE_DATA
+   );
 
    -----------------------------------------------------------------
    --INSTANTIATION OF THE SOBEL FILTER
@@ -196,11 +203,32 @@ BEGIN
 --   );
 
    -----------------------------------------------------------------
+   -- IMAGE SCALAR
+   -----------------------------------------------------------------
+   IMG_SCALING: ENTITY WORK.IMAGE_SCALING
+   GENERIC MAP(
+      VIDEO_IN_BITS  => VIDEO_BITS, 
+      VIDEO_OUT_BITS => VGA_BITS
+   )
+   PORT MAP(
+      CLK         => FAKE_CAMERA_CLK,
+      RST         => FAKE_CAMERA_RST,
+
+      FVAL_IN     => TRANSPOSE_FVAL,
+      LVAL_IN     => TRANSPOSE_LVAL,
+      DATA_IN     => TRANSPOSE_DATA,
+
+      FVAL_OUT    => IMG_SCALING_FVAL,
+      LVAL_OUT    => IMG_SCALING_LVAL,
+      DATA_OUT    => IMG_SCALING_DATA
+   );
+
+   -----------------------------------------------------------------
    -- INSTANTIATION OF THE VGA CONVERTER
    -----------------------------------------------------------------
    VGA_OUTPUT: ENTITY WORK.VIDEO_VGA_CONVERTER
    GENERIC MAP(
-      VIDEO_BITS     => VIDEO_BITS,
+      VIDEO_BITS     => VGA_BITS,
       VIDEO_VPIX     => VIDEO_VPIX,
       VIDEO_VLIN     => VIDEO_VLIN,
       VIDEO_IPIX     => VIDEO_IPIX
@@ -209,9 +237,9 @@ BEGIN
       CLK            => FAKE_CAMERA_CLK,
       RST            => FAKE_CAMERA_RST,
 
-      FVAL_IN        => FAKE_CAMERA_FVAL,
-      LVAL_IN        => FAKE_CAMERA_LVAL,
-      DATA_IN        => FAKE_CAMERA_DATA,
+      FVAL_IN        => IMG_SCALING_FVAL,
+      LVAL_IN        => IMG_SCALING_LVAL,
+      DATA_IN        => IMG_SCALING_DATA,
 
       VGA_CLK        => VGA_CLK,
       VGA_HS_O       => HSYNC,

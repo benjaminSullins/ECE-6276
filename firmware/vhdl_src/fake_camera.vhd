@@ -71,13 +71,35 @@ ARCHITECTURE FAKE_CAMERA_ARCH OF FAKE_CAMERA IS
    -- OUTPUT REGISTERS
    -----------------------------------------------------------------
    SIGNAL FVAL_REG      : STD_LOGIC;
+   SIGNAL FVAL_REG1     : STD_LOGIC;
    SIGNAL LVAL_REG      : STD_LOGIC;
-   SIGNAL DATA_CNTR     : STD_LOGIC_VECTOR(VIDEO_BITS - 1 DOWNTO 0);
+   SIGNAL LVAL_REG1     : STD_LOGIC;
+   SIGNAL DATA_REG      : STD_LOGIC_VECTOR(VIDEO_BITS - 1 DOWNTO 0);
+   SIGNAL DATA_REG1     : STD_LOGIC_VECTOR(VIDEO_BITS - 1 DOWNTO 0);
 
    -- OUTPUT SELECTIONS
-   CONSTANT HORIZ_TP    : NATURAL := 0;
-   CONSTANT VERTI_TP    : NATURAL := 1;
-   CONSTANT IMAGE_TP    : NATURAL := 2;
+   CONSTANT HORIZ_TP    : STD_LOGIC_VECTOR(VID_SELECT'RANGE) := "00";
+   CONSTANT VERTI_TP    : STD_LOGIC_VECTOR(VID_SELECT'RANGE) := "01";
+   CONSTANT IMAGE_TP    : STD_LOGIC_VECTOR(VID_SELECT'RANGE) := "10";
+
+   -----------------------------------------------------------------
+   -- PRE-LOADED IMAGE
+   -----------------------------------------------------------------
+   CONSTANT BRAM_ADDR_BITS : NATURAL := LOG2(VIDEO_VPIX*VIDEO_VLIN);
+   CONSTANT BRAM_DATA_BITS : NATURAL := 8;
+
+   COMPONENT FAKE_CAMERA_BRAM 
+   PORT(
+      CLKA : IN  STD_LOGIC;
+      WEA  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+      ADDRA: IN  STD_LOGIC_VECTOR(BRAM_ADDR_BITS     DOWNTO 0);
+      DINA : IN  STD_LOGIC_VECTOR(BRAM_DATA_BITS - 1 DOWNTO 0);
+      DOUTA: OUT STD_LOGIC_VECTOR(BRAM_DATA_BITS - 1 DOWNTO 0)
+   );
+   END COMPONENT;
+
+   SIGNAL MEM_ADDR : STD_LOGIC_VECTOR(BRAM_ADDR_BITS     DOWNTO 0);
+   SIGNAL MEM_DATA : STD_LOGIC_VECTOR(BRAM_DATA_BITS - 1 DOWNTO 0);
 
 BEGIN
 
@@ -197,7 +219,11 @@ BEGIN
       IF RST = '1' THEN
          FVAL_REG  <= '0';                 -- CLEAR THE OUTPUTS
          LVAL_REG  <= '0';                 -- CLEAR THE OUTPUTS
-         DATA_CNTR <= (OTHERS => '0');     -- CLEAR THE OUTPUTS
+         FVAL_REG1 <= '0';                 -- CLEAR THE OUTPUTS
+         LVAL_REG1 <= '0';                 -- CLEAR THE OUTPUTS
+         DATA_REG  <= (OTHERS => '0');     -- CLEAR THE OUTPUTS
+         DATA_REG1 <= (OTHERS => '0');     -- CLEAR THE OUTPUTS
+         MEM_ADDR  <= (OTHERS => '0');
       ELSIF RISING_EDGE(CLK) THEN
          
          CASE( SM ) IS
@@ -205,35 +231,62 @@ BEGIN
             WHEN FRAME_INVALID =>  
                FVAL_REG  <= '0';            
                LVAL_REG  <= '0';            
-               DATA_CNTR <= (OTHERS => '0');
+               DATA_REG1 <= (OTHERS => '0');
+               MEM_ADDR  <= (OTHERS => '0');
 
             WHEN FRONT_PORCH =>                                -- FRONT_PORCH
                FVAL_REG  <= '1';            
                LVAL_REG  <= '0';            
-               DATA_CNTR <= (OTHERS => '0');
+               DATA_REG1 <= (OTHERS => '0');
+               MEM_ADDR  <= (OTHERS => '0');
 
             WHEN LINE_VALID =>                                 -- LINE_VALID STATE
                FVAL_REG  <= '1';            
                LVAL_REG  <= '1';            
-               DATA_CNTR <= DATA_CNTR + 1;
+               DATA_REG1 <= DATA_REG;
+               MEM_ADDR  <= MEM_ADDR + 1;
 
             WHEN LINE_INVALID =>                               -- LINE_INVALID
                FVAL_REG  <= '1';            
                LVAL_REG  <= '0';            
-               DATA_CNTR <= (OTHERS => '0');
+               DATA_REG1 <= (OTHERS => '0');
+               MEM_ADDR  <= MEM_ADDR;
                   
             WHEN OTHERS =>                                     -- UNKNOWN STATE
                FVAL_REG  <= '0';            
                LVAL_REG  <= '0';            
-               DATA_CNTR <= (OTHERS => '0');
+               DATA_REG1 <= (OTHERS => '0');
+               MEM_ADDR  <= (OTHERS => '0');
 
          END CASE;
+
+         CASE( VID_SELECT ) IS
+            WHEN HORIZ_TP => DATA_REG <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(VPIX_CNTR), VIDEO_BITS));
+            WHEN VERTI_TP => DATA_REG <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(VLIN_CNTR), VIDEO_BITS));
+            WHEN IMAGE_TP => DATA_REG <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(MEM_DATA),  VIDEO_BITS));
+            WHEN OTHERS   => DATA_REG <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(MEM_DATA),  VIDEO_BITS));
+         END CASE;
+
+         -- REGISTER FVAL/LVAL TO ALIGN WITH DATA
+         FVAL_REG1 <= FVAL_REG;
+         LVAL_REG1 <= LVAL_REG;
+
       END IF;
    END PROCESS;
+
+   -- BRAM INSTANTIATION (LATENCY = 1)
+   BRAM : FAKE_CAMERA_BRAM 
+   PORT MAP(
+      CLKA  => CLK,
+      WEA   => (OTHERS => '0'),
+      ADDRA => MEM_ADDR,
+      DINA  => (OTHERS => '0'),
+      DOUTA => MEM_DATA
+   );
 
    -- CONNECT REGISTERS TO OUTPUTS
    FVAL_OUT <= FVAL_REG;
    LVAL_OUT <= LVAL_REG;
-   DATA_OUT <= DATA_CNTR;
+   DATA_OUT <= DATA_REG1;
 
 END FAKE_CAMERA_ARCH;
