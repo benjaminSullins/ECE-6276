@@ -156,27 +156,27 @@ BEGIN
    -----------------------------------------------------------------
    -- INSTANTIATION OF THE VIDEO TRANSPOSE
    -----------------------------------------------------------------
-   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
-   GENERIC MAP(
-      VIDEO_BITS     => VIDEO_BITS, 
-      VIDEO_VPIX     => VIDEO_VPIX,
-      VIDEO_VLIN     => VIDEO_VLIN,
-      VIDEO_IPIX     => VIDEO_IPIX,       
-      VIDEO_INT_TIME => VIDEO_INT_TIME
-   )
-   PORT MAP(
-      CLK         => FAKE_CAMERA_CLK,
-      RST         => FAKE_CAMERA_RST,
-
-      FVAL_IN     => FAKE_CAMERA_FVAL,
-      LVAL_IN     => FAKE_CAMERA_LVAL,
-      DATA_IN     => FAKE_CAMERA_DATA,
-      
-      SWT         => TRANSPOSE_SLCT,
-      FVAL_OUT    => TRANSPOSE_FVAL,
-      LVAL_OUT    => TRANSPOSE_LVAL,
-      DATA_OUT    => TRANSPOSE_DATA
-   );
+--   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
+--   GENERIC MAP(
+--      VIDEO_BITS     => VIDEO_BITS, 
+--      VIDEO_VPIX     => VIDEO_VPIX,
+--      VIDEO_VLIN     => VIDEO_VLIN,
+--      VIDEO_IPIX     => VIDEO_IPIX,       
+--      VIDEO_INT_TIME => VIDEO_INT_TIME
+--   )
+--   PORT MAP(
+--      CLK         => FAKE_CAMERA_CLK,
+--      RST         => FAKE_CAMERA_RST,
+--
+--      FVAL_IN     => FAKE_CAMERA_FVAL,
+--      LVAL_IN     => FAKE_CAMERA_LVAL,
+--      DATA_IN     => FAKE_CAMERA_DATA,
+--      
+--      SWT         => TRANSPOSE_SLCT,
+--      FVAL_OUT    => TRANSPOSE_FVAL,
+--      LVAL_OUT    => TRANSPOSE_LVAL,
+--      DATA_OUT    => TRANSPOSE_DATA
+--   );
 
    -----------------------------------------------------------------
    --INSTANTIATION OF THE SOBEL FILTER
@@ -214,9 +214,9 @@ BEGIN
       CLK         => FAKE_CAMERA_CLK,
       RST         => FAKE_CAMERA_RST,
 
-      FVAL_IN     => TRANSPOSE_FVAL,
-      LVAL_IN     => TRANSPOSE_LVAL,
-      DATA_IN     => TRANSPOSE_DATA,
+      FVAL_IN     => FAKE_CAMERA_FVAL, -- TRANSPOSE_FVAL,
+      LVAL_IN     => FAKE_CAMERA_LVAL, -- TRANSPOSE_LVAL,
+      DATA_IN     => FAKE_CAMERA_DATA, -- TRANSPOSE_DATA,
 
       FVAL_OUT    => IMG_SCALING_FVAL,
       LVAL_OUT    => IMG_SCALING_LVAL,
