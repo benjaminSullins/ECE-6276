@@ -34,15 +34,15 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity sobel is
-    Generic(N : natural := 8;               -- Data Width 
-            LINE_WIDTH : natural := 160;      -- Image Line Width (5 or 160)
-            ADDRESS_BUS_WIDTH : natural := 8-- FIFO Address Width
+    Generic(N : natural := 8;                   -- Data Width 
+            LINE_WIDTH : natural := 160;        -- Image Line Width (5 or 160)
+            ADDRESS_BUS_WIDTH : natural := 8    -- FIFO Address Width
             );          
     Port ( clk : in STD_LOGIC;
            rst : in STD_LOGIC;
            fval_in : in STD_LOGIC :='0';
            lval_in : in STD_LOGIC :='0';
-           d_in : in unsigned (7 downto 0);
+           d_in : in unsigned (N-1 downto 0);
            
            fval_out : out STD_LOGIC :='0';
            lval_out : out STD_LOGIC :='0';
