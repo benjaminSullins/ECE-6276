@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="446529500000fs"></ZoomStartTime>
-      <ZoomEndTime time="446862500001fs"></ZoomEndTime>
-      <Cursor1Time time="446605000000fs"></Cursor1Time>
+      <ZoomStartTime time="64732677334fs"></ZoomStartTime>
+      <ZoomEndTime time="68132677334fs"></ZoomEndTime>
+      <Cursor1Time time="65310517000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="221"></NameColumnWidth>
-      <ValueColumnWidth column_width="88"></ValueColumnWidth>
+      <ValueColumnWidth column_width="84"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="6" />
+   <WVObjectSize size="7" />
    <wvobject fp_name="/TB_FILTER/CLK" type="logic">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
@@ -88,7 +88,6 @@
    <wvobject fp_name="group599" type="group">
       <obj_property name="label">FAKE_CAMERA</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/TB_FILTER/DUT/TP_GENERATOR/CLK" type="logic">
          <obj_property name="ElementShortName">CLK</obj_property>
          <obj_property name="ObjectShortName">CLK</obj_property>
@@ -227,8 +226,8 @@
          <obj_property name="ObjectShortName">LVAL_IN</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/DATA_IN" type="array">
-         <obj_property name="ElementShortName">DATA_IN[3:0]</obj_property>
-         <obj_property name="ObjectShortName">DATA_IN[3:0]</obj_property>
+         <obj_property name="ElementShortName">DATA_IN[7:0]</obj_property>
+         <obj_property name="ObjectShortName">DATA_IN[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_HS_O" type="logic">
          <obj_property name="ElementShortName">VGA_HS_O</obj_property>
@@ -237,18 +236,6 @@
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_VS_O" type="logic">
          <obj_property name="ElementShortName">VGA_VS_O</obj_property>
          <obj_property name="ObjectShortName">VGA_VS_O</obj_property>
-      </wvobject>
-      <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_RED_O" type="array">
-         <obj_property name="ElementShortName">VGA_RED_O[3:0]</obj_property>
-         <obj_property name="ObjectShortName">VGA_RED_O[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_BLUE_O" type="array">
-         <obj_property name="ElementShortName">VGA_BLUE_O[3:0]</obj_property>
-         <obj_property name="ObjectShortName">VGA_BLUE_O[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_GREEN_O" type="array">
-         <obj_property name="ElementShortName">VGA_GREEN_O[3:0]</obj_property>
-         <obj_property name="ObjectShortName">VGA_GREEN_O[3:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/PXL_CLK" type="logic">
          <obj_property name="ElementShortName">PXL_CLK</obj_property>
@@ -367,6 +354,103 @@
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/UPSCALE_FACTOR" type="other">
          <obj_property name="ElementShortName">UPSCALE_FACTOR</obj_property>
          <obj_property name="ObjectShortName">UPSCALE_FACTOR</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group120" type="group">
+      <obj_property name="label">IMAGE_SCALING</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/CLK" type="logic">
+         <obj_property name="ElementShortName">CLK</obj_property>
+         <obj_property name="ObjectShortName">CLK</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/RST" type="logic">
+         <obj_property name="ElementShortName">RST</obj_property>
+         <obj_property name="ObjectShortName">RST</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/COLORMAP_SELECT" type="logic">
+         <obj_property name="ElementShortName">COLORMAP_SELECT</obj_property>
+         <obj_property name="ObjectShortName">COLORMAP_SELECT</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/FVAL_IN" type="logic">
+         <obj_property name="ElementShortName">FVAL_IN</obj_property>
+         <obj_property name="ObjectShortName">FVAL_IN</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/LVAL_IN" type="logic">
+         <obj_property name="ElementShortName">LVAL_IN</obj_property>
+         <obj_property name="ObjectShortName">LVAL_IN</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/DATA_IN" type="array">
+         <obj_property name="ElementShortName">DATA_IN[7:0]</obj_property>
+         <obj_property name="ObjectShortName">DATA_IN[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_VS_O" type="logic">
+         <obj_property name="ElementShortName">VGA_VS_O</obj_property>
+         <obj_property name="ObjectShortName">VGA_VS_O</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_HS_O" type="logic">
+         <obj_property name="ElementShortName">VGA_HS_O</obj_property>
+         <obj_property name="ObjectShortName">VGA_HS_O</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_RED_O" type="array">
+         <obj_property name="ElementShortName">VGA_RED_O[3:0]</obj_property>
+         <obj_property name="ObjectShortName">VGA_RED_O[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_BLUE_O" type="array">
+         <obj_property name="ElementShortName">VGA_BLUE_O[3:0]</obj_property>
+         <obj_property name="ObjectShortName">VGA_BLUE_O[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_GREEN_O" type="array">
+         <obj_property name="ElementShortName">VGA_GREEN_O[3:0]</obj_property>
+         <obj_property name="ObjectShortName">VGA_GREEN_O[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/FVAL_IN_R1" type="logic">
+         <obj_property name="ElementShortName">FVAL_IN_R1</obj_property>
+         <obj_property name="ObjectShortName">FVAL_IN_R1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/LVAL_IN_R1" type="logic">
+         <obj_property name="ElementShortName">LVAL_IN_R1</obj_property>
+         <obj_property name="ObjectShortName">LVAL_IN_R1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_RED" type="array">
+         <obj_property name="ElementShortName">VGA_RED[3:0]</obj_property>
+         <obj_property name="ObjectShortName">VGA_RED[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_BLUE" type="array">
+         <obj_property name="ElementShortName">VGA_BLUE[3:0]</obj_property>
+         <obj_property name="ObjectShortName">VGA_BLUE[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VGA_GREEN" type="array">
+         <obj_property name="ElementShortName">VGA_GREEN[3:0]</obj_property>
+         <obj_property name="ObjectShortName">VGA_GREEN[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/MEM_ADDR" type="array">
+         <obj_property name="ElementShortName">MEM_ADDR[3:0]</obj_property>
+         <obj_property name="ObjectShortName">MEM_ADDR[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/MEM_DATA" type="array">
+         <obj_property name="ElementShortName">MEM_DATA[11:0]</obj_property>
+         <obj_property name="ObjectShortName">MEM_DATA[11:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VIDEO_IN_BITS" type="other">
+         <obj_property name="ElementShortName">VIDEO_IN_BITS</obj_property>
+         <obj_property name="ObjectShortName">VIDEO_IN_BITS</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/VIDEO_OUT_BITS" type="other">
+         <obj_property name="ElementShortName">VIDEO_OUT_BITS</obj_property>
+         <obj_property name="ObjectShortName">VIDEO_OUT_BITS</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/BRAM_ADDR_BITS" type="other">
+         <obj_property name="ElementShortName">BRAM_ADDR_BITS</obj_property>
+         <obj_property name="ObjectShortName">BRAM_ADDR_BITS</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/BRAM_DATA_BITS" type="other">
+         <obj_property name="ElementShortName">BRAM_DATA_BITS</obj_property>
+         <obj_property name="ObjectShortName">BRAM_DATA_BITS</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/IMG_SCALING/BYPASS" type="logic">
+         <obj_property name="ElementShortName">BYPASS</obj_property>
+         <obj_property name="ObjectShortName">BYPASS</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
