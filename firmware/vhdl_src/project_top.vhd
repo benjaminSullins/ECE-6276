@@ -27,7 +27,7 @@ ENTITY PROJECT_TOP IS
 PORT(
    CLK         : IN  STD_LOGIC;
    RST         : IN  STD_LOGIC;
-   SW          : IN  STD_LOGIC_VECTOR(4 DOWNTO 0);
+   SW          : IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
 
    LED         : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
    HSYNC       : OUT STD_LOGIC;
@@ -106,6 +106,14 @@ ARCHITECTURE PROJECT_TOP_ARCH OF PROJECT_TOP IS
    -- VGA CONVERTER SIGNALS
    -----------------------------------------------------------------
    SIGNAL VGA_CLK       : STD_LOGIC;
+   SIGNAL VGA_DATA      : STD_LOGIC_VECTOR(3 DOWNTO 0);
+   SIGNAL VGA_VSYNC     : STD_LOGIC;
+   SIGNAL VGA_HSYNC     : STD_LOGIC;
+
+   -----------------------------------------------------------------
+   -- IMAGE SCALING SIGNALS
+   -----------------------------------------------------------------
+   ALIAS  COLORMAP_SELECT : STD_LOGIC IS SW(5);
 
 BEGIN
 
@@ -203,32 +211,11 @@ BEGIN
 --   );
 
    -----------------------------------------------------------------
-   -- IMAGE SCALAR
-   -----------------------------------------------------------------
-   IMG_SCALING: ENTITY WORK.IMAGE_SCALING
-   GENERIC MAP(
-      VIDEO_IN_BITS  => VIDEO_BITS, 
-      VIDEO_OUT_BITS => VGA_BITS
-   )
-   PORT MAP(
-      CLK         => FAKE_CAMERA_CLK,
-      RST         => FAKE_CAMERA_RST,
-
-      FVAL_IN     => FAKE_CAMERA_FVAL, -- TRANSPOSE_FVAL,
-      LVAL_IN     => FAKE_CAMERA_LVAL, -- TRANSPOSE_LVAL,
-      DATA_IN     => FAKE_CAMERA_DATA, -- TRANSPOSE_DATA,
-
-      FVAL_OUT    => IMG_SCALING_FVAL,
-      LVAL_OUT    => IMG_SCALING_LVAL,
-      DATA_OUT    => IMG_SCALING_DATA
-   );
-
-   -----------------------------------------------------------------
    -- INSTANTIATION OF THE VGA CONVERTER
    -----------------------------------------------------------------
    VGA_OUTPUT: ENTITY WORK.VIDEO_VGA_CONVERTER
    GENERIC MAP(
-      VIDEO_BITS     => VGA_BITS,
+      VIDEO_BITS     => VIDEO_BITS,
       VIDEO_VPIX     => VIDEO_VPIX,
       VIDEO_VLIN     => VIDEO_VLIN,
       VIDEO_IPIX     => VIDEO_IPIX
@@ -237,16 +224,38 @@ BEGIN
       CLK            => FAKE_CAMERA_CLK,
       RST            => FAKE_CAMERA_RST,
 
-      FVAL_IN        => IMG_SCALING_FVAL,
-      LVAL_IN        => IMG_SCALING_LVAL,
-      DATA_IN        => IMG_SCALING_DATA,
+      FVAL_IN        => FAKE_CAMERA_FVAL,
+      LVAL_IN        => FAKE_CAMERA_LVAL,
+      DATA_IN        => FAKE_CAMERA_DATA,
 
       VGA_CLK        => VGA_CLK,
-      VGA_HS_O       => HSYNC,
-      VGA_VS_O       => VSYNC,
-      VGA_RED_O      => VGARED,
-      VGA_BLUE_O     => VGABLUE,
-      VGA_GREEN_O    => VGAGREEN
+      VGA_HS_O       => VGA_HSYNC,
+      VGA_VS_O       => VGA_VSYNC,
+      VGA_DATA       => VGA_DATA
+   );
+
+   -----------------------------------------------------------------
+   -- IMAGE SCALAR
+   -----------------------------------------------------------------
+   IMG_SCALING: ENTITY WORK.IMAGE_SCALING
+   GENERIC MAP(
+      VIDEO_IN_BITS  => VIDEO_BITS, 
+      VIDEO_OUT_BITS => VGA_BITS
+   )
+   PORT MAP(
+      CLK             => VGA_CLK,
+      RST             => FAKE_CAMERA_RST,
+
+      COLORMAP_SELECT => COLORMAP_SELECT,
+      FVAL_IN         => VGA_VSYNC,   
+      LVAL_IN         => VGA_HSYNC,   
+      DATA_IN         => VGA_DATA,
+
+      VGA_VS_O        => VSYNC,
+      VGA_HS_O        => HSYNC,
+      VGA_RED_O       => VGARED,
+      VGA_BLUE_O      => VGABLUE,
+      VGA_GREEN_O     => VGAGREEN
    );
 
    -----------------------------------------------------------------
