@@ -224,9 +224,9 @@ BEGIN
       CLK            => FAKE_CAMERA_CLK,
       RST            => FAKE_CAMERA_RST,
 
-      FVAL_IN        => FAKE_CAMERA_FVAL,
-      LVAL_IN        => FAKE_CAMERA_LVAL,
-      DATA_IN        => FAKE_CAMERA_DATA,
+      FVAL_IN        => FAKE_CAMERA_FVAL, -- TRANSPOSE_FVAL, -- 
+      LVAL_IN        => FAKE_CAMERA_LVAL, -- TRANSPOSE_LVAL, -- 
+      DATA_IN        => FAKE_CAMERA_DATA, -- TRANSPOSE_DATA, -- 
 
       VGA_CLK        => VGA_CLK,
       VGA_HS_O       => VGA_HSYNC,
