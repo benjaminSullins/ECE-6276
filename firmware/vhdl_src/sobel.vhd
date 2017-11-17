@@ -137,7 +137,7 @@ begin
      END GENERATE;                                     
                                           
      Line_160_size:
-     if(LINE_WIDTH = 160) GENERATE          -- If Line Width is 160 gen 159 depth buffs
+     if(LINE_WIDTH >= 160) GENERATE          -- If Line Width is 160 gen 159 depth buffs
      line_buff_1 : line_buff_159 port map (clka => clk, clkb => clk, rsta => rst,
                                            rstb => rst, wea => '0', web => '1',
                                            addra => read_addr, 
