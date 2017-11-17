@@ -164,51 +164,50 @@ BEGIN
    -----------------------------------------------------------------
    -- INSTANTIATION OF THE VIDEO TRANSPOSE
    -----------------------------------------------------------------
---   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
---   GENERIC MAP(
---      VIDEO_BITS     => VIDEO_BITS, 
---      VIDEO_VPIX     => VIDEO_VPIX,
---      VIDEO_VLIN     => VIDEO_VLIN,
---      VIDEO_IPIX     => VIDEO_IPIX,       
---      VIDEO_INT_TIME => VIDEO_INT_TIME
---   )
---   PORT MAP(
---      CLK         => FAKE_CAMERA_CLK,
---      RST         => FAKE_CAMERA_RST,
---
---      FVAL_IN     => FAKE_CAMERA_FVAL,
---      LVAL_IN     => FAKE_CAMERA_LVAL,
---      DATA_IN     => FAKE_CAMERA_DATA,
---      
---      SWT         => TRANSPOSE_SLCT,
---      FVAL_OUT    => TRANSPOSE_FVAL,
---      LVAL_OUT    => TRANSPOSE_LVAL,
---      DATA_OUT    => TRANSPOSE_DATA
---   );
+   TRANSPOSE: ENTITY WORK.VIDEO_TRANSPOSE
+   GENERIC MAP(
+      VIDEO_BITS     => VIDEO_BITS, 
+      VIDEO_VPIX     => VIDEO_VPIX,
+      VIDEO_VLIN     => VIDEO_VLIN,
+      VIDEO_IPIX     => VIDEO_IPIX,       
+      VIDEO_INT_TIME => VIDEO_INT_TIME
+   )
+   PORT MAP(
+      CLK         => FAKE_CAMERA_CLK,
+      RST         => FAKE_CAMERA_RST,
+
+      FVAL_IN     => FAKE_CAMERA_FVAL,
+      LVAL_IN     => FAKE_CAMERA_LVAL,
+      DATA_IN     => FAKE_CAMERA_DATA,
+      
+      SWT         => TRANSPOSE_SLCT,
+      FVAL_OUT    => TRANSPOSE_FVAL,
+      LVAL_OUT    => TRANSPOSE_LVAL,
+      DATA_OUT    => TRANSPOSE_DATA
+   );
 
    -----------------------------------------------------------------
    --INSTANTIATION OF THE SOBEL FILTER
    -----------------------------------------------------------------
---   EDGE_DETECTION: ENTITY WORK.VIDEO_EDGE_DETECTION
---   GENERIC MAP(
---      N                 => VIDEO_BITS,
---      LINE_WIDTH        => VIDEO_VLIN + VIDEO_IPIX,
---      ADDRESS_BUS_WIDTH => LOG2(VIDEO_VLIN + VIDEO_IPIX)
---   )
---   PORT MAP(
---      CLK         => FAKE_CAMERA_CLK,
---      RST         => FAKE_CAMERA_RST,
---
---      FVAL_IN     => TRANSPOSE_FVAL,
---      LVAL_IN     => TRANSPOSE_LVAL,
---      D_IN        => TRANSPOSE_DATA,
---
---      FVAL_OUT    => SOBEL_FVAL,
---      LVAL_OUT    => SOBEL_LVAL,
---      VERT_OUT    => OPEN,
---      HORZ_OUT    => OPEN,
---      SUM_OUT     => SOBEL_DATA
---   );
+   EDGE_DETECTION: ENTITY WORK.SOBEL_WRAPPER
+   GENERIC MAP(
+      N                 => VIDEO_BITS,
+      LINE_WIDTH        => VIDEO_VLIN + VIDEO_IPIX,
+      ADDRESS_BUS_WIDTH => LOG2(VIDEO_VLIN + VIDEO_IPIX)
+   )
+   PORT MAP(
+      CLK         => FAKE_CAMERA_CLK,
+      RST         => FAKE_CAMERA_RST,
+
+      FVAL_IN     => TRANSPOSE_FVAL,
+      LVAL_IN     => TRANSPOSE_LVAL,
+      DATA_IN     => TRANSPOSE_DATA,
+
+      SEL         => SOBEL_SLCT,
+      FVAL_OUT    => SOBEL_FVAL,
+      LVAL_OUT    => SOBEL_LVAL,
+      DATA_OUT    => SOBEL_DATA
+   );
 
    -----------------------------------------------------------------
    -- INSTANTIATION OF THE VGA CONVERTER
@@ -224,9 +223,9 @@ BEGIN
       CLK            => FAKE_CAMERA_CLK,
       RST            => FAKE_CAMERA_RST,
 
-      FVAL_IN        => FAKE_CAMERA_FVAL, -- TRANSPOSE_FVAL, -- 
-      LVAL_IN        => FAKE_CAMERA_LVAL, -- TRANSPOSE_LVAL, -- 
-      DATA_IN        => FAKE_CAMERA_DATA, -- TRANSPOSE_DATA, -- 
+      FVAL_IN        => SOBEL_FVAL, -- FAKE_CAMERA_FVAL, -- TRANSPOSE_FVAL, -- 
+      LVAL_IN        => SOBEL_LVAL, -- FAKE_CAMERA_LVAL, -- TRANSPOSE_LVAL, -- 
+      DATA_IN        => SOBEL_DATA, -- FAKE_CAMERA_DATA, -- TRANSPOSE_DATA, -- 
 
       VGA_CLK        => VGA_CLK,
       VGA_HS_O       => VGA_HSYNC,
