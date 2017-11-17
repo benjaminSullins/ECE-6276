@@ -7,67 +7,69 @@
 %  Project Name: VGA Image Transpose and Edge Detection
 % ------------------------------------------------------
 
-function transpose_model()
+function [tran_imag_hor, tran_imag_ver, tran_imag_yoshi] = transpose_model(orig_imag_hor, orig_imag_ver, orig_imag_yoshi, wid, len)
 
-close all; clear; clc;
+% close all; clear; clc;
 
-wid = 160; % image width
-len = 120; % image length
+% wid = 160; % image width
+% len = 120; % image length
 
 % ---------------------
 % Horizontal Test Image
 % ---------------------
 % Original Image
-orig_imag_hor = uint8(zeros(len,wid));
-for i = 1:len
-    for j = 1:wid
-        orig_imag_hor(i,j) = uint8(j);
-    end
-end
+% orig_imag_hor = uint8(zeros(len,wid));
+% for i = 1:len
+%     for j = 1:wid
+%         orig_imag_hor(i,j) = uint8(j);
+%     end
+% end
 % Transpose Image
-tran_imag_hor = tran(len,wid,orig_imag_hor);
+tran_imag_hor = tran(len, wid, orig_imag_hor);
 
 % -------------------
 % Vertical Test Image
 % -------------------
 % Original Image
-orig_imag_ver = uint8(zeros(len,wid));
-for i = 1:len
-    for j = 1:wid
-        orig_imag_ver(i,j) = uint8(i);
-    end
-end
+% orig_imag_ver = uint8(zeros(len,wid));
+% for i = 1:len
+%     for j = 1:wid
+%         orig_imag_ver(i,j) = uint8(i);
+%     end
+% end
 % Transpose Image
-tran_imag_ver = tran(len,wid,orig_imag_ver);
+tran_imag_ver = tran(len, wid, orig_imag_ver);
 
 % ----------------
 % Yoshi Test Image
 % ----------------
 % Original Image
-yoshi = imread('yoshi.png');
-orig_imag_yoshi = yoshi(:,:,1);
+% yoshi = imread('yoshi.png');
+% orig_imag_yoshi = yoshi(:,:,1);
 % Transpose Image
-tran_imag_yoshi = tran(len,wid,orig_imag_yoshi);
+tran_imag_yoshi = tran(len, wid, orig_imag_yoshi);
+
+figure('Name', 'Transpose Circuit');
 
 subplot(3,2,1)
-imshow(orig_imag_hor)
+imshow(orig_imag_hor, [])
 title('Horizontal Test -- Original Image')
 subplot(3,2,2)
-imshow(tran_imag_hor)
+imshow(tran_imag_hor, [])
 title('Horizontal Test -- Transpose Image')
 
 subplot(3,2,3)
-imshow(orig_imag_ver)
+imshow(orig_imag_ver, [])
 title('Vertical Test -- Original Image')
 subplot(3,2,4)
-imshow(tran_imag_ver)
+imshow(tran_imag_ver, [])
 title('Vertical Test -- Transpose Image')
 
 subplot(3,2,5)
-imshow(orig_imag_yoshi)
+imshow(orig_imag_yoshi, [])
 title('Yoshi Test -- Original Image')
 subplot(3,2,6)
-imshow(tran_imag_yoshi)
+imshow(tran_imag_yoshi, [])
 title('Yoshi Test -- Transpose Image')
 
 end
