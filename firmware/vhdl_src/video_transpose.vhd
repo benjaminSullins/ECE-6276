@@ -121,7 +121,7 @@ ELSIF RISING_EDGE(CLK) THEN
           LVAL_IN = '1' THEN
       --DATA VALID
         WEA   <= (OTHERS => '1');
-        DINA  <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(DATA_IN), BRAM_DATA_BITS));
+        DINA  <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(DATA_IN), BRAM_DATA_BITS)); 
         ADDRA <= ADDRA + 1;
     ELSIF FVAL_IN = '1' AND 
           LVAL_IN = '0' THEN
@@ -172,9 +172,9 @@ ELSIF RISING_EDGE(CLK) THEN
             IPIX_CNTR <= IPIX_CNTR + 1;
 
             IF SWT = '1' THEN
-                ADDRB <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(VPIX_CNTR),ADDRB'LENGTH));
+                ADDRB <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(VLIN_CNTR),ADDRB'LENGTH));
             ELSE
-                REPORT "ERROR(VIDEO_TRANSPOSE.VHD): SWT ISSUE IN FRONT PORCH";
+                NULL;
             END IF;
 
         ELSIF UNSIGNED(IPIX_CNTR) >= VIDEO_IPIX - 1 THEN
@@ -182,10 +182,11 @@ ELSIF RISING_EDGE(CLK) THEN
             FRNT_PRCH <= '0';
             IPIX_CNTR <= (OTHERS => '0');
 
-            IF SWT='0' THEN
+            IF SWT='0'                          AND
+               UNSIGNED(VLIN_CNTR) < VIDEO_VLIN THEN
                 ADDRB <= ADDRB + 1;
             ELSE
-                REPORT "ERROR(VIDEO_TRANSPOSE.VHD): SWT ISSUE IN FRONT PORCH";
+                NULL;
             END IF;
 
         ELSE
@@ -196,16 +197,24 @@ ELSIF RISING_EDGE(CLK) THEN
           BFF_VAL = '1' THEN
 
       --ORIGINAL IMAGE
-        IF UNSIGNED(VLIN_CNTR) < VIDEO_VLIN - 1 THEN
+        IF UNSIGNED(VLIN_CNTR) < VIDEO_VLIN THEN
             IF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX THEN
                 LVAL_OUT  <= '1';
                 DATA_OUT  <= DOUTB;
                 VPIX_CNTR <= VPIX_CNTR + 1;
-
-                IF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX - 1 THEN
-                    ADDRB <= ADDRB + 1;
-                ELSE
-                    NULL;
+                
+                IF UNSIGNED(VLIN_CNTR) < VIDEO_VLIN - 1 THEN
+                    IF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX - 1 THEN
+                        ADDRB <= ADDRB + 1;
+                    ELSE 
+                        NULL;
+                    END IF;
+                ELSIF UNSIGNED(VLIN_CNTR) >= VIDEO_VLIN - 1 THEN
+                    IF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX - 2 THEN
+                        ADDRB <= ADDRB + 1;
+                    ELSE 
+                        NULL;
+                    END IF;
                 END IF;
                 
             ELSIF UNSIGNED(VPIX_CNTR) >= VIDEO_VPIX THEN
@@ -217,7 +226,49 @@ ELSIF RISING_EDGE(CLK) THEN
             ELSE
                 REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR VPIX_CNTR";
             END IF;
-        ELSIF UNSIGNED(VLIN_CNTR) >= VIDEO_VLIN - 1 THEN
+        ELSIF UNSIGNED(VLIN_CNTR) >= VIDEO_VLIN THEN
+            IF UNSIGNED(INT_TIME_CNTR) < VIDEO_INT_TIME - 1 THEN
+                FVAL_OUT      <= '0';
+                LVAL_OUT      <= '0';
+                ADDRB         <= (OTHERS => '0');
+                DATA_OUT      <= (OTHERS => '0');
+                INT_TIME_CNTR <= INT_TIME_CNTR + 1;
+            ELSIF UNSIGNED(INT_TIME_CNTR) >= VIDEO_INT_TIME - 1 THEN
+                FRNT_PRCH     <= '1';                                                        
+                VLIN_CNTR     <= (OTHERS => '0');
+                INT_TIME_CNTR <= (OTHERS => '0');
+            ELSE
+                REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR INT_TIME_CNTR";
+            END IF;
+        ELSE
+            REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR VLIN_CNTR";
+        END IF;   
+    ELSIF SWT     = '1' AND 
+          BFF_VAL = '1' THEN
+      --TRANSPOSE IMAGE
+        IF UNSIGNED(VLIN_CNTR) < VIDEO_VLIN THEN
+            IF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX THEN
+                LVAL_OUT  <= '1';
+                VPIX_CNTR <= VPIX_CNTR + 1;
+                IF UNSIGNED(VPIX_CNTR) < VIDEO_VLIN-1 THEN
+                    DATA_OUT  <= DOUTB;
+                    ADDRB <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED((VPIX_CNTR+1)*STD_LOGIC_VECTOR(TO_UNSIGNED(VIDEO_VPIX,VPIX_CNTR'LENGTH)) + VLIN_CNTR),ADDRB'LENGTH));
+                ELSIF UNSIGNED(VPIX_CNTR) = VIDEO_VLIN-1 THEN
+                    DATA_OUT  <= DOUTB;
+                    ADDRB <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED(VLIN_CNTR) + 1,ADDRB'LENGTH));
+                ELSIF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX THEN
+                    DATA_OUT <= (OTHERS => '0');
+                END IF;
+            ELSIF UNSIGNED(VPIX_CNTR) >= VIDEO_VPIX THEN
+                LVAL_OUT  <= '0';
+                FRNT_PRCH <= '1';
+                DATA_OUT  <= (OTHERS => '0');
+                VLIN_CNTR <= VLIN_CNTR + 1;
+                VPIX_CNTR <= (OTHERS => '0');
+            ELSE
+                REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR VPIX_CNTR";
+            END IF;
+        ELSIF UNSIGNED(VLIN_CNTR) >= VIDEO_VLIN THEN
             IF UNSIGNED(INT_TIME_CNTR) < VIDEO_INT_TIME - 1 THEN
                 FVAL_OUT      <= '0';
                 LVAL_OUT      <= '0';
@@ -233,43 +284,6 @@ ELSIF RISING_EDGE(CLK) THEN
             END IF;
         ELSE
             REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR VLIN_CNTR";
-        END IF;   
-    ELSIF SWT     = '1' AND 
-          BFF_VAL = '1' THEN
-      --TRANSPOSE IMAGE
-        IF UNSIGNED(VPIX_CNTR) < VIDEO_VPIX THEN
-            IF UNSIGNED(VLIN_CNTR) < VIDEO_VLIN THEN
-                LVAL_OUT  <= '1';
-                DATA_OUT  <= DOUTB;
-                VLIN_CNTR <= VLIN_CNTR + 1;
-                IF UNSIGNED(VLIN_CNTR) < VIDEO_VLIN - 1 THEN
-                    ADDRB <= STD_LOGIC_VECTOR(RESIZE(UNSIGNED((VLIN_CNTR+1)*STD_LOGIC_VECTOR(TO_UNSIGNED(VIDEO_VPIX,VPIX_CNTR'LENGTH)) + VPIX_CNTR),ADDRB'LENGTH));
-                END IF;
-            ELSIF UNSIGNED(VLIN_CNTR) >= VIDEO_VLIN THEN
-                LVAL_OUT  <= '0';
-                FRNT_PRCH <= '1';
-                DATA_OUT  <= (OTHERS => '0');
-                VPIX_CNTR <= VPIX_CNTR + 1;
-                VLIN_CNTR <= (OTHERS => '0');
-            ELSE
-                REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR VLIN_CNTR";
-            END IF;
-        ELSIF UNSIGNED(VPIX_CNTR) >= VIDEO_VPIX THEN
-            IF UNSIGNED(INT_TIME_CNTR) < VIDEO_INT_TIME - 1 THEN
-                FVAL_OUT      <= '0';
-                LVAL_OUT      <= '0';
-                DATA_OUT      <= (OTHERS => '0');
-                INT_TIME_CNTR <= INT_TIME_CNTR + 1;
-            ELSIF UNSIGNED(INT_TIME_CNTR) >= VIDEO_INT_TIME - 1 THEN
-                FRNT_PRCH     <= '1';
-                ADDRB         <= (OTHERS => '0');
-                VPIX_CNTR     <= (OTHERS => '0');
-                INT_TIME_CNTR <= (OTHERS => '0');
-            ELSE
-                REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR INT_TIME_CNTR";
-            END IF;
-        ELSE
-            REPORT "ERROR(VIDEO_TRANSPOSE.VHD): INVALID VALUE FOR VPIX_CNTR";
         END IF;
     ELSE
         NULL;
