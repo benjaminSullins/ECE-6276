@@ -50,21 +50,21 @@ end filter_mask_3x3;
 
 architecture Behavioral of filter_mask_3x3 is
  
-    signal multAv   : signed (N+2 downto 0);
-    signal multBv   : signed (N+2 downto 0);
-    signal multCv   : signed (N+2 downto 0);
-    signal sumV     : signed (N+3 downto 0);
+    signal multAv   : signed (N+3 downto 0);    -- 12-bit
+    signal multBv   : signed (N+3 downto 0);    -- 12-bit
+    signal multCv   : signed (N+3 downto 0);    -- 12-bit
+    signal sumV     : signed (N+4 downto 0);    -- 13-bit
     
-    signal multAh   : signed (N+6 downto 0);
-    signal multBh   : signed (N+6 downto 0);
-    signal multCh   : signed (N+6 downto 0);
+    signal multAh   : signed (N+7 downto 0);    --16-bit
+    signal multBh   : signed (N+7 downto 0);    --16-bit
+    signal multCh   : signed (N+7 downto 0);    --16-bit
+    signal lineDly1 : signed (N+7 downto 0);    --16-bit
     
-    signal lineDly1 : signed (N+6 downto 0);
+    signal sumh1    : signed (N+8 downto 0);    --17-bit
     
-    signal sumh1    : signed (N+7 downto 0);
-    signal sumh2    : signed (N+8 downto 0);
+    signal sumh2    : signed (N+9 downto 0);    --18-bit
+    signal dout_int : unsigned (N+9 downto 0);  --18-bit
     
-    signal dout_int : unsigned (N+8 downto 0);
     constant M      : natural := dout_int'length;
    
 begin
@@ -90,9 +90,9 @@ begin
             
             dout_int <= (others => '0');  
         elsif rising_edge(clk) then
-            multAv  <= signed(in1) * a_v;
-            multBv  <= signed(in2) * b_v;
-            multCv  <= signed(in3) * c_v;
+            multAv  <= signed(resize(in1,9)) * a_v;
+            multBv  <= signed(resize(in2, 9)) * b_v;
+            multCv  <= signed(resize(in3, 9)) * c_v;
             sumV    <= resize(multAv, sumV'length)+
                        resize(multBv, sumV'length)+ 
                        resize(multCv, sumV'length);
@@ -122,7 +122,7 @@ begin
                 dout <= (others => '0');
             elsif rising_edge(clk) then 
                 MSbs := dout_int(M-1 downto N);
-                if(MSbs = "000000000") then          -- No overflow
+                if(MSbs = 0) then          -- No overflow
                     dout <= dout_int(N-1 downto 0);
                 else                                 -- Overflow
                     dout <= "11111111";              -- Saturate

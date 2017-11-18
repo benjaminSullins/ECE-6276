@@ -21,7 +21,7 @@ num_cols = 160;
 
 % test_imag = uint8(rgb2gray(imread('input_files\effiel_2.jpg')));
 
-% test_imag = uint8(rgb2gray(imread('input_files\golden_gate_bridge_1.jpg')));
+ test_imag = uint8(rgb2gray(imread('input_files\golden_gate_bridge_1.jpg')));
 
 % test_imag = uint8(rgb2gray(imread('input_files\golden_gate_bridge_2.jpg')));
 
@@ -35,7 +35,7 @@ num_cols = 160;
 
 % test_imag = uint8(rgb2gray(imread('input_files\face.jpg')));
 
-test_imag = uint8(rgb2gray(imread('input_files\yoshi.jpg')));
+% test_imag = uint8(rgb2gray(imread('input_files\yoshi.jpg')));
 
 test_imag = imresize(test_imag, [num_rows num_cols]);
 
@@ -57,6 +57,9 @@ gy = [-1 -2 -1;
 test_output_x = double(0*test_imag);             % Create output array for x-dir
 test_output_y = double(0*test_imag);             % Create output array for y-dir
 
+% test_output_x = (0*test_imag);             % Create output array for x-dir
+% test_output_y = (0*test_imag);             % Create output array for y-dir
+
 % X-Dir
 % For each column, exclude border to avoid out-of-bounds indexing
 for c = 2:l-2
@@ -65,6 +68,7 @@ for c = 2:l-2
         for m = c-1:c+1
             for n = r-1:r+1
                 test_output_x(r,c) = test_output_x(r,c) + (gx(n-r+2, m-c+2) * double(test_imag(n,m)));
+%                 test_output_x(r,c) = test_output_x(r,c) + (gx(n-r+2, m-c+2) * (test_imag(n,m)));
             end
         end
     end
@@ -78,6 +82,7 @@ for c = 2:l-2
         for m = c-1:c+1
             for n = r-1:r+1
                 test_output_y(r,c) = test_output_y(r,c) + (gy(n-r+2, m-c+2) * double(test_imag(n,m)));
+%                 test_output_y(r,c) = test_output_y(r,c) + (gy(n-r+2, m-c+2) * (test_imag(n,m)));
             end
         end
     end

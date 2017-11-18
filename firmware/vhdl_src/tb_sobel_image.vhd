@@ -22,9 +22,9 @@ architecture Behavioral of tb_sobel_image is
     constant num_cycles : integer := image_size + latency + 50;     -- Plus 50 for good measure
 
     component sobel is
-        Generic(N : natural := 8;               -- Data Width 
+        Generic(N : natural := 8;                 -- Data Width 
                 LINE_WIDTH : natural := 160;      -- Image Line Width (5 or 160)
-                ADDRESS_BUS_WIDTH : natural := 8-- FIFO Address Width
+                ADDRESS_BUS_WIDTH : natural := 8  -- FIFO Address Width
                 );          
         Port ( clk : in STD_LOGIC;
                rst : in STD_LOGIC;

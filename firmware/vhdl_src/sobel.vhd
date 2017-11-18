@@ -137,7 +137,7 @@ begin
      END GENERATE;                                     
                                           
      Line_160_size:
-     if(LINE_WIDTH >= 160) GENERATE          -- If Line Width is 160 gen 159 depth buffs
+     if(LINE_WIDTH = 160) GENERATE          -- If Line Width is 160 gen 159 depth buffs
      line_buff_1 : line_buff_159 port map (clka => clk, clkb => clk, rsta => rst,
                                            rstb => rst, wea => '0', web => '1',
                                            addra => read_addr, 
@@ -196,8 +196,8 @@ begin
         elsif rising_edge(clk) then
             horz_out <= d_horz;
             vert_out <= d_vert;
-            -- Sum Vert and Horz Divide-b
-            sum_out <= d_sum(N downto 1);
+            -- Sum Vert and Horz Divide-by-2
+            sum_out <= d_sum(N downto 1);   --TODO: Implement max(Gx,Gy) + min(Gx, Gy)/4 Approx
         end if;
     end process output;
    d_sum <= resize(d_horz, d_sum'length) + resize(d_vert, d_sum'length);
