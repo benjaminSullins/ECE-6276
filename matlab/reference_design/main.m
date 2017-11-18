@@ -15,6 +15,8 @@ num_bits = 8;
 vpix     = 160;
 ipix     = 0;
 vlin     = 120;
+vga_pix  = 640;
+vga_lin  = 480;
 
 % Create the test Images
 hori_image = zeros(vlin, vpix+ipix);
@@ -53,9 +55,7 @@ sobel_imag_ver   = tran_imag_ver;
 sobel_imag_yoshi = tran_imag_yoshi;
 
 %% VGA Circuit
-vga_imag_hor   = sobel_imag_hor;
-vga_imag_ver   = sobel_imag_ver;
-vga_imag_yoshi = sobel_imag_yoshi;
+[vga_imag_hor, vga_imag_ver, vga_imag_yoshi] = vga_model(sobel_imag_hor, sobel_imag_ver, sobel_imag_yoshi, vpix, vlin, vga_pix, vga_lin);
 
 %% Colormap
 
