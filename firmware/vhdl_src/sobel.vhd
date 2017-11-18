@@ -85,6 +85,23 @@ architecture Behavioral of sobel is
                doutb: out unsigned (7 downto 0) := (others => '1')
               );   
     end component line_buff_159;
+
+    component line_buff_175 is
+        Port ( 
+               clka : in std_logic;
+               clkb : in std_logic;
+               rsta : in std_logic;
+               rstb : in std_logic;
+               wea  : in std_logic;
+               web  : in std_logic;
+               addra: in unsigned (7 downto 0);
+               addrb: in unsigned (7 downto 0);
+               dina : in unsigned (7 downto 0) := (others => '1'); 
+               dinb : in unsigned (7 downto 0);
+               douta: out unsigned (7 downto 0);
+               doutb: out unsigned (7 downto 0) := (others => '1')
+              );   
+    end component line_buff_175;
     
     component filter_mask_3x3 is
         Generic( N : natural;
@@ -151,6 +168,22 @@ begin
                                            dina => tap_1, dinb => tap_1, 
                                            douta => tap_2, doutb => open);
       END GENERATE;                                          
+
+     Line_176_size:
+     if(LINE_WIDTH = 176) GENERATE          -- If Line Width is 160 gen 159 depth buffs
+     line_buff_1 : line_buff_175 port map (clka => clk, clkb => clk, rsta => rst,
+                                           rstb => rst, wea => '0', web => '1',
+                                           addra => read_addr, 
+                                           addrb => write_addr,
+                                           dina => din, dinb => din, 
+                                           douta => tap_1, doutb => open);
+     line_buff_2 : line_buff_175 port map (clka => clk, clkb => clk, rsta => rst,
+                                           rstb => rst, wea => '0', web => '1',
+                                           addra => read_addr, 
+                                           addrb => write_addr,
+                                           dina => tap_1, dinb => tap_1, 
+                                           douta => tap_2, doutb => open);
+      END GENERATE;
     
     horz_filter : filter_mask_3x3 generic map (N => N,
                                                a_v => "001", b_v => "000", c_v =>"111",
