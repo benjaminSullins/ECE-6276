@@ -1,10 +1,10 @@
 -- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2017.2 (win64) Build 1909853 Thu Jun 15 18:39:09 MDT 2017
--- Date        : Sun Nov 12 15:16:33 2017
+-- Date        : Fri Nov 17 20:34:39 2017
 -- Host        : Ben-HP running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode funcsim
---               c:/Users/Ben/Desktop/ECE6276/ECE-6276/firmware/core_src/VGA_CLK_GEN/CLOCK_GENERATOR/CLOCK_GENERATOR_sim_netlist.vhdl
+--               c:/Users/Ben/Desktop/ECE6276/ECE-6276/firmware/core_src/CLOCK_GENERATOR/CLOCK_GENERATOR_sim_netlist.vhdl
 -- Design      : CLOCK_GENERATOR
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
