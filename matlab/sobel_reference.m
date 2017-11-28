@@ -1,8 +1,10 @@
 clear; clc;
 
 %% Build a Test Image
-num_rows = 120;
-num_cols = 160;
+num_rows = 120;                         % Number of Rows
+num_vcol = 160;                         % Valid Columns
+num_icol = 0;                          % Invalid/padding Columns
+num_cols = num_vcol + num_icol;
 
 % Build a test image
 % test_imag = uint8([128*ones(59, 79), 32*ones(59, 2), 128*ones(59,79);
@@ -37,7 +39,9 @@ num_cols = 160;
 
 % test_imag = uint8(rgb2gray(imread('input_files\yoshi.jpg')));
 
-test_imag = imresize(test_imag, [num_rows num_cols]);
+test_imag = imresize(test_imag, [num_rows num_vcol]);
+padding = uint8(255*(ones(num_rows, num_icol)));
+test_imag = [padding test_imag];
 
 % Write image to text file for external processing on FPGA, output from FPGA can 
 % be compared to output of this script for reference/verification
