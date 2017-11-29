@@ -119,8 +119,8 @@ architecture Behavioral of sobel is
                dout: out unsigned (N - 1 downto 0));
     end component filter_mask_3x3;
     
-    signal fval_int : std_logic_vector (0 to 2*(LINE_WIDTH-1) + 8);
-    signal lval_int : std_logic_vector (0 to 2*(LINE_WIDTH-1) + 8);
+    signal fval_int : std_logic_vector (0 to 1*(LINE_WIDTH-1) + 8);
+    signal lval_int : std_logic_vector (0 to 1*(LINE_WIDTH-1) + 8);
                
     signal read_addr : unsigned (ADDRESS_BUS_WIDTH - 1 downto 0);
     signal write_addr: unsigned (ADDRESS_BUS_WIDTH - 1 downto 0);
