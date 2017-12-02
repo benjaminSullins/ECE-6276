@@ -186,8 +186,8 @@ begin
       END GENERATE;
     
     horz_filter : filter_mask_3x3 generic map (N => N,
-                                               a_v => "001", b_v => "000", c_v =>"111",
-                                               a_h => "001", b_h =>"010", c_h =>"001")
+                                               a_v => "001", b_v => "010", c_v =>"001",
+                                               a_h => "001", b_h =>"000", c_h =>"111")
                                   port map (clk => clk, rst => rst, 
                                             in1 => din,
                                             in2 => tap_1,
@@ -195,8 +195,8 @@ begin
                                             dout => d_horz);
                                             
     vert_filter : filter_mask_3x3 generic map (N => N,
-                                               a_v => "001", b_v => "010", c_v =>"001",
-                                               a_h => "111", b_h =>"000", c_h =>"001")
+                                               a_v => "001", b_v => "000", c_v =>"111",
+                                               a_h => "001", b_h =>"010", c_h =>"001")
                                   port map (clk => clk, rst => rst, 
                                             in1 => din,
                                             in2 => tap_1,
