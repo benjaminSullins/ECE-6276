@@ -12,13 +12,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="476499044854fs"></ZoomStartTime>
-      <ZoomEndTime time="513699044855fs"></ZoomEndTime>
-      <Cursor1Time time="506405000000fs"></Cursor1Time>
+      <ZoomStartTime time="601448979454fs"></ZoomStartTime>
+      <ZoomEndTime time="602051303420fs"></ZoomEndTime>
+      <Cursor1Time time="601745275000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="221"></NameColumnWidth>
-      <ValueColumnWidth column_width="76"></ValueColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="9" />
    <wvobject fp_name="/TB_FILTER/CLK" type="logic">
@@ -88,6 +88,7 @@
    <wvobject fp_name="group599" type="group">
       <obj_property name="label">FAKE_CAMERA</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/TB_FILTER/DUT/TP_GENERATOR/CLK" type="logic">
          <obj_property name="ElementShortName">CLK</obj_property>
          <obj_property name="ObjectShortName">CLK</obj_property>
@@ -410,7 +411,6 @@
    <wvobject fp_name="group401" type="group">
       <obj_property name="label">VGA_CONVERTER</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/CLK" type="logic">
          <obj_property name="ElementShortName">CLK</obj_property>
          <obj_property name="ObjectShortName">CLK</obj_property>
@@ -431,13 +431,13 @@
          <obj_property name="ElementShortName">DATA_IN[7:0]</obj_property>
          <obj_property name="ObjectShortName">DATA_IN[7:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_HS_O" type="logic">
-         <obj_property name="ElementShortName">VGA_HS_O</obj_property>
-         <obj_property name="ObjectShortName">VGA_HS_O</obj_property>
-      </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_VS_O" type="logic">
          <obj_property name="ElementShortName">VGA_VS_O</obj_property>
          <obj_property name="ObjectShortName">VGA_VS_O</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/VGA_HS_O" type="logic">
+         <obj_property name="ElementShortName">VGA_HS_O</obj_property>
+         <obj_property name="ObjectShortName">VGA_HS_O</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_FILTER/DUT/VGA_OUTPUT/PXL_CLK" type="logic">
          <obj_property name="ElementShortName">PXL_CLK</obj_property>
