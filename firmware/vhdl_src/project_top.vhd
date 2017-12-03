@@ -199,7 +199,7 @@ BEGIN
       CLK         => FAKE_CAMERA_CLK,
       RST         => FAKE_CAMERA_RST,
 
-      FVAL_IN     => TRANSPOSE_FVAL,
+      FVAL_IN     => TRANSPOSE_FVAL, 
       LVAL_IN     => TRANSPOSE_LVAL,
       DATA_IN     => TRANSPOSE_DATA,
 
